@@ -1,38 +1,38 @@
 {
-  "name": "swarmyteller",
-  "version": "1.0.0-pre.0",
-  "description": "A project generated from aunty's react project template.",
-  "license": "MIT",
-  "private": true,
-  "contributors": [
-    "Colin Gourlay <gourlay.colin@abc.net.au>",
-    "Simon Elvery <simon@elvery.net>"
-  ],
-  "aunty": {
-    "type": "react"
-  },
-  "scripts": {
-    "start": "aunty serve"
-  },
-  "devDependencies": {
-    "@abcnews/aunty": "^10.5.2",
-    "worker-loader": "^2.0.0"
-  },
-  "dependencies": {
-    "@abcnews/scrollyteller": "^1.4.4",
-    "asap": "^2.0.6",
-    "core-js": "^3.4.7",
-    "d3-array": "^2.1.0",
-    "d3-delaunay": "^5.1.6",
-    "d3-force": "^2.0.1",
-    "d3-path": "^1.0.7",
-    "d3-request": "^1.0.6",
-    "d3-scale": "^3.0.0",
-    "d3-selection": "^1.4.0",
-    "d3-timer": "^1.0.10",
-    "power-ranger": "^1.1.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "regenerator-runtime": "^0.13.3"
-  }
+	"name": "swarmyteller",
+	"version": "1.0.0",
+	"description": "A project generated from aunty's react project template.",
+	"license": "MIT",
+	"private": true,
+	"contributors": [
+		"Colin Gourlay <gourlay.colin@abc.net.au>",
+		"Simon Elvery <simon@elvery.net>"
+	],
+	"aunty": {
+		"type": "react"
+	},
+	"scripts": {
+		"start": "aunty serve"
+	},
+	"devDependencies": {
+		"@abcnews/aunty": "^10.5.2",
+		"worker-loader": "^2.0.0"
+	},
+	"dependencies": {
+		"@abcnews/scrollyteller": "^1.4.4",
+		"asap": "^2.0.6",
+		"core-js": "^3.4.7",
+		"d3-array": "^2.1.0",
+		"d3-delaunay": "^5.1.6",
+		"d3-force": "^2.0.1",
+		"d3-path": "^1.0.7",
+		"d3-request": "^1.0.6",
+		"d3-scale": "^3.0.0",
+		"d3-selection": "^1.4.0",
+		"d3-timer": "^1.0.10",
+		"power-ranger": "^1.1.0",
+		"react": "^16.8.6",
+		"react-dom": "^16.8.6",
+		"regenerator-runtime": "^0.13.3"
+	}
 }
