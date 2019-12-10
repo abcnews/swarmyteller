@@ -50,12 +50,9 @@
     clear: both;
   }
 
-  p,
-  h2,
-  h3 {
+  & > * {
     font-family: ABCSerif, Book Antiqua, Palatino Linotype, Palatino, serif;
     color: #fefefe;
-    line-height: 1.666666667;
 
     padding-left: 0.875rem;
     padding-right: 0.875rem;
@@ -63,6 +60,7 @@
     margin-top: 0;
     margin-left: auto !important;
     margin-right: auto !important;
+    margin-bottom: 1.5rem;
 
     width: 66.666667%;
 
@@ -71,20 +69,22 @@
     }
   }
 
-  p {
+  & > p {
     font-size: 1.375rem;
+    line-height: 1.666666667;
   }
 
-  h2,
-  h3 {
+  & > h2,
+  & > h3 {
+    line-height: 1.25;
     text-align: center;
   }
 
-  h2 {
+  & > h2 {
     font-size: 2.25rem;
   }
 
-  h3 {
+  & > h3 {
     font-size: 1.75rem;
   }
 
