@@ -1,0 +1,31 @@
+.dots {
+  position: relative;
+  z-index: 1;
+  background-color: #3c6998; // Fallback if no js
+  transition: background 0.2s;
+
+  canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+  }
+
+  svg {
+    background: none;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .group-label text {
+    font-size: 15px;
+    fill: #fff;
+    text-anchor: middle;
+  }
+
+  .group-label path {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.6);
+    stroke-width: 1;
+  }
+}
