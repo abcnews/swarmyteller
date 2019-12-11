@@ -359,10 +359,19 @@ function graph(mountNode, data, options) {
 
       // Keep it in the bounds.
       clusters.forEach(d => {
-        d.x = Math.min(width - margin * 2 - d.r, Math.max(margin + d.r, d.x));
+        const cappedR = Math.min(
+          d.r,
+          width / 2 - margin * 2,
+          height / 2 - margin * 2
+        );
+
+        d.x = Math.min(
+          width - margin * 2 - cappedR,
+          Math.max(margin + cappedR, d.x)
+        );
         d.y = Math.min(
-          height - margin * 2 - d.r,
-          Math.max(margin + d.r + 40, d.y)
+          height - margin * 2 - cappedR,
+          Math.max(margin + cappedR + 40, d.y)
         );
       });
     }
@@ -371,7 +380,7 @@ function graph(mountNode, data, options) {
     clusters.forEach(d => {
       d.label = {
         x: d.x,
-        y: d.y - d.r - 3 - 15 * d.groupLines.length
+        y: d.y - d.r - 3 - 17 * d.groupLines.length
       };
       d.anchor = {
         x: d.x,
