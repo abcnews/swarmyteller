@@ -128,6 +128,7 @@ function graph(mountNode, data, options) {
   let dots = [];
   let clusters = [];
   let canvasDots = [];
+  let removedCanvasDots = [];
 
   const { colors, colorProperty, margin } = options;
   const domain = options.marks.reduce((acc, row) => {
@@ -160,8 +161,10 @@ function graph(mountNode, data, options) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, width, height);
 
-    for (let i = 0, len = canvasDots.length; i < len; i++) {
-      const dot = canvasDots[i];
+    const renderableDots = [...canvasDots, ...removedCanvasDots];
+
+    for (let i = 0, len = renderableDots.length; i < len; i++) {
+      const dot = renderableDots[i];
 
       canvasCtx.beginPath();
       canvasCtx.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
@@ -179,22 +182,27 @@ function graph(mountNode, data, options) {
     );
     let nextDotIndex = 0;
 
+    removedCanvasDots = canvasDots.slice(numPoints);
+
     canvasDots = clusters.reduce((memo, cluster) => {
       const { points, size } = cluster.swarm;
 
       points.forEach(point => {
         const dotIndex = nextDotIndex++;
 
+        const tx = cluster.x + point[0] - size / 2;
+        const ty = cluster.y + point[1] - size / 2;
+
         const dot =
           memo[dotIndex] ||
           (memo.push({ x: cluster.x, y: cluster.y }) && memo[memo.length - 1]);
 
-        dot.scolor = dot.color || cluster.color;
+        dot.scolor = dot.color || "rgba(0,0,0,0)";
         dot.tcolor = cluster.color;
         dot.sx = dot.x;
         dot.sy = dot.y;
-        dot.tx = cluster.x + point[0] - size / 2;
-        dot.ty = cluster.y + point[1] - size / 2;
+        dot.tx = tx;
+        dot.ty = ty;
         dot.r = cluster.dotR;
       });
 
@@ -202,6 +210,7 @@ function graph(mountNode, data, options) {
     }, canvasDots.slice(0, numPoints));
 
     const dotDuration = 750;
+    const dotRemovalDuration = 125;
     const dotStagger = 250;
     const duration = dotDuration + dotStagger;
     const timerInstance = timer(elapsed => {
@@ -212,6 +221,7 @@ function graph(mountNode, data, options) {
           0,
           Math.min(dotDuration, elapsed - (dotStagger / numPoints) * dotIndex)
         );
+        ``;
         const dotProgress = Math.min(
           1,
           easeCubicInOut(dotElapsed / dotDuration)
@@ -220,6 +230,23 @@ function graph(mountNode, data, options) {
         dot.color = dotProgress < 0.5 ? dot.scolor : dot.tcolor;
         dot.x = dot.sx * (1 - dotProgress) + dot.tx * dotProgress;
         dot.y = dot.sy * (1 - dotProgress) + dot.ty * dotProgress;
+      });
+
+      removedCanvasDots.forEach((dot, dotIndex) => {
+        const dotElapsed = Math.max(
+          0,
+          Math.min(
+            dotRemovalDuration,
+            elapsed - (dotStagger / removedCanvasDots.length) * dotIndex
+          )
+        );
+        ``;
+        const dotProgress = Math.min(
+          1,
+          easeCubicInOut(dotElapsed / dotRemovalDuration)
+        );
+
+        dot.color = dotProgress < 0.5 ? dot.color : "rgba(0,0,0,0)";
       });
 
       renderCanvas();
