@@ -3,9 +3,13 @@ import Scrollyteller from "@abcnews/scrollyteller";
 import Dots from "../Dots";
 import styles from "./styles.scss";
 
-export default function App({ scrollyData, dataUrl, total }) {
+export default function App({ scrollyData, dataUrl }) {
   const [mark, setMark] = useState();
-  const [dimensions, setDimensions] = useState();
+  const [dimensions, setDimensions] = useState([
+    window.innerWidth,
+    window.innerHeight
+  ]);
+  const minDimension = Math.min.apply(null, dimensions);
 
   useEffect(() => {
     const updateDimensions = context => {
@@ -28,9 +32,10 @@ export default function App({ scrollyData, dataUrl, total }) {
         mark={mark}
         marks={scrollyData.panels.map(d => d.config)}
         dataUrl={dataUrl}
-        total={total}
         width={dimensions[0]}
         height={dimensions[1]}
+        dotSpacing={minDimension > 1200 ? 6 : minDimension > 600 ? 4.5 : 3}
+        dotRadius={minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1}
       />
     </Scrollyteller>
   ) : null;

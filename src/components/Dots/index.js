@@ -100,7 +100,6 @@ export default class Dots extends React.Component {
           options.colorProperty = colorPropertyMeta.content;
 
         options.marks = this.props.marks;
-        options.total = this.props.total;
 
         const viz = graph(this.rootRef.current, data, options);
         viz.update(this.props);
@@ -130,7 +129,7 @@ function graph(mountNode, data, options) {
   let clusters = [];
   let canvasDots = [];
 
-  const { colors, colorProperty, margin, total } = options;
+  const { colors, colorProperty, margin } = options;
   const domain = options.marks.reduce((acc, row) => {
     if (acc.indexOf(row[colorProperty]) === -1) {
       acc.push(row[colorProperty]);
@@ -144,6 +143,8 @@ function graph(mountNode, data, options) {
   let height;
   let measure;
   let comparison;
+  let dotSpacing;
+  let dotRadius;
 
   // Selections
   const rootSelection = select(mountNode);
@@ -163,7 +164,7 @@ function graph(mountNode, data, options) {
       const dot = canvasDots[i];
 
       canvasCtx.beginPath();
-      canvasCtx.arc(dot.x, dot.y, 1, 0, 2 * Math.PI);
+      canvasCtx.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
       canvasCtx.fillStyle = dot.color || "rgba(255, 255, 255, 0.8)";
       canvasCtx.fill();
     }
@@ -194,6 +195,7 @@ function graph(mountNode, data, options) {
         dot.sy = dot.y;
         dot.tx = cluster.x + point[0] - size / 2;
         dot.ty = cluster.y + point[1] - size / 2;
+        dot.r = cluster.dotR;
       });
 
       return memo;
@@ -226,32 +228,24 @@ function graph(mountNode, data, options) {
         timerInstance.stop();
       }
     });
-
-    // const duration = 500;
-    // const timerInstance = timer(elapsed => {
-    //   const progress = Math.min(1, easeCubicInOut(elapsed / duration));
-
-    //   canvasDots.forEach(dot => {
-    //     dot.x = dot.sx * (1 - progress) + dot.tx * progress;
-    //     dot.y = dot.sy * (1 - progress) + dot.ty * progress;
-    //   });
-
-    //   renderCanvas();
-
-    //   if (progress === 1) {
-    //     timerInstance.stop();
-    //   }
-    // });
   }
 
   const update = async props => {
     const { mark } = props;
 
-    if (!mark || (measure === mark.measure && comparison === mark.comparison))
+    if (
+      !mark ||
+      (measure === mark.measure &&
+        comparison === mark.comparison &&
+        dotSpacing === props.dotSpacing &&
+        dotRadius === props.dotRadius)
+    )
       return;
 
     measure = mark.measure;
     comparison = mark.comparison;
+    dotSpacing = props.dotSpacing;
+    dotRadius = props.dotRadius;
 
     if (width !== props.width || height !== props.height) {
       width = props.width;
@@ -281,7 +275,7 @@ function graph(mountNode, data, options) {
           imageURL:
             SHAPE_IMAGE_URLS[SHAPES.indexOf(d.shape) > -1 ? d.shape : "circle"],
           numPoints: +d.value,
-          spacing: 3.5
+          spacing: props.dotSpacing || 3
         })
       )
     );
@@ -306,6 +300,7 @@ function graph(mountNode, data, options) {
           color: d.colour || "#fff",
           shape: d.shape,
           r: swarms[i].size / 2,
+          dotR: props.dotRadius || 1,
           value: +d.value,
           groupLines: wordwrap(d.group, 10)
         };
