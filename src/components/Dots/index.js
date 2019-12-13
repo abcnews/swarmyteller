@@ -45,6 +45,7 @@ const SHAPES = [
   "circle",
   "dollar",
   "home",
+  "power",
   "submarine",
   "sun",
   "water",
