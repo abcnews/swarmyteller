@@ -94,6 +94,20 @@
     display: block;
     margin: auto;
   }
+
+  & a:link,
+  & a:hover,
+  & a:active,
+  & a:visited {
+    color: inherit !important;
+    text-decoration: underline !important;
+    text-decoration-color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  & a:hover,
+  & a:active {
+    text-decoration-color: #fff !important;
+  }
 }
 
 .light {
@@ -132,8 +146,15 @@
       width: calc(83.3333% + 0.75rem);
     }
 
-    p {
+    & > * {
       width: 83.333333%;
+    }
+
+    & > h2 {
+      font-size: 1.75rem;
+    }
+
+    & > p {
       font-size: 1.125rem;
       line-height: 1.555555556;
     }
