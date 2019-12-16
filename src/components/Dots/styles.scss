@@ -29,3 +29,22 @@
     stroke-width: 1;
   }
 }
+
+.dotLabel {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  color: #fff;
+  font-size: 0.9375rem;
+  line-height: 1;
+}
+
+.dotLabel::before {
+  content: "";
+  display: inline-block;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: currentColor;
+}

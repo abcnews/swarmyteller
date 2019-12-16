@@ -29,6 +29,7 @@ function init() {
     <App
       scrollyData={scrollyteller}
       dataUrl={root.dataset.data || `${__webpack_public_path__}data.csv`}
+      dotLabel={root.dataset.dotLabel}
     />,
     scrollyteller.mountNode
   );

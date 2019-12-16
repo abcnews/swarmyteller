@@ -112,7 +112,13 @@ export default class Dots extends React.Component {
   }
 
   render() {
-    return <div className={styles.dots} ref={this.rootRef} />;
+    return (
+      <div className={styles.dots} ref={this.rootRef}>
+        {this.props.dotLabel && (
+          <div className={styles.dotLabel}>{`= ${this.props.dotLabel}`}</div>
+        )}
+      </div>
+    );
   }
 }
 
