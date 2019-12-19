@@ -325,7 +325,7 @@ function graph(mountNode, data, options) {
           imageURL:
             SHAPE_IMAGE_URLS[SHAPES.indexOf(d.shape) > -1 ? d.shape : "circle"],
           numPoints: +d.value,
-          spacing: props.dotSpacing || 3
+          spacing: dotSpacing || 3
         })
       )
     );
@@ -350,7 +350,7 @@ function graph(mountNode, data, options) {
           color: d.colour || "#fff",
           shape: d.shape,
           r: swarms[i].size / 2,
-          dotR: props.dotRadius || 1,
+          dotR: dotRadius || 1,
           value: +d.value,
           groupLines: wordwrap(d.group, 10)
         };
