@@ -34,6 +34,15 @@ function init() {
     />,
     scrollyteller.mountNode
   );
+
+  // Add data-* attriubutes to aligned panels so we can override some styles
+  scrollyteller.panels.forEach(panel => {
+    if (!panel.config.align || !panel.nodes.length) {
+      return;
+    }
+
+    panel.nodes[0].parentElement.setAttribute("data-align", panel.config.align);
+  });
 }
 
 if (window.__ODYSSEY__) {

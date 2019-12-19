@@ -1,3 +1,11 @@
+.left {
+  composes: left from "../../../node_modules/@abcnews/scrollyteller/src/Panel/index.scss";
+}
+
+.right {
+  composes: right from "../../../node_modules/@abcnews/scrollyteller/src/Panel/index.scss";
+}
+
 .panel {
   &:nth-of-type(2) {
     margin-top: 100vh;
@@ -47,7 +55,8 @@
   }
 
   @media only screen and (min-width: 1023px) {
-    &:nth-of-type(2) {
+    &:nth-of-type(2)[data-align="left"],
+    &:nth-of-type(2)[data-align="right"] {
       margin-top: 40vh;
     }
   }
