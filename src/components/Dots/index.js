@@ -158,6 +158,7 @@ function graph(mountNode, data, options) {
 
   let width;
   let height;
+  let align;
   let measure;
   let comparison;
   let dotSpacing;
@@ -278,7 +279,8 @@ function graph(mountNode, data, options) {
 
     if (
       !mark ||
-      (measure === mark.measure &&
+      (align === mark.align &&
+        measure === mark.measure &&
         comparison === mark.comparison &&
         dotSpacing === props.dotSpacing &&
         dotRadius === props.dotRadius)
@@ -290,10 +292,15 @@ function graph(mountNode, data, options) {
     dotSpacing = props.dotSpacing;
     dotRadius = props.dotRadius;
 
-    if (width !== props.width || height !== props.height) {
+    if (
+      width !== props.width ||
+      height !== props.height ||
+      align !== mark.align
+    ) {
       width = props.width;
       height = props.height;
-      clusterSimulation = getClusterSimulation(mark.align);
+      align = mark.align;
+      clusterSimulation = getClusterSimulation(align);
       scaleCanvas(canvasEl, canvasCtx, width, height);
       renderCanvas();
     }

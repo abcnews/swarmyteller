@@ -25,7 +25,6 @@ export default function App({ scrollyData, dataUrl, dotLabel }) {
 
   return scrollyData && dimensions ? (
     <Scrollyteller
-      config={{ align: "right" }}
       panels={scrollyData.panels}
       panelClassName={`${scrollytellerPanelStyles.base} ${styles.panel}`}
       onMarker={mark => setMark(mark)}
