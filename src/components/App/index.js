@@ -4,13 +4,17 @@ import Dots from "../Dots";
 import scrollytellerPanelStyles from "@abcnews/scrollyteller/src/Panel/index.scss";
 import styles from "./styles.scss";
 
-export default function App({ scrollyData, dataUrl, dotLabel }) {
+export default function App({ scrollyData, dataUrl, dotLabel, dotMinRadius }) {
+  dotMinRadius = dotMinRadius ? +dotMinRadius : 1;
+
   const [mark, setMark] = useState();
   const [dimensions, setDimensions] = useState([
     window.innerWidth,
     window.innerHeight
   ]);
   const minDimension = Math.min.apply(null, dimensions);
+  const minDimensionBasedScaling = value =>
+    value * (minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1);
 
   useEffect(() => {
     const updateDimensions = context => {
@@ -35,9 +39,9 @@ export default function App({ scrollyData, dataUrl, dotLabel }) {
         dataUrl={dataUrl}
         width={dimensions[0]}
         height={dimensions[1]}
-        dotSpacing={minDimension > 1200 ? 6 : minDimension > 600 ? 4.5 : 3}
-        dotRadius={minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1}
         dotLabel={dotLabel}
+        dotRadius={minDimensionBasedScaling(dotMinRadius)}
+        dotSpacing={minDimensionBasedScaling(dotMinRadius) * 1.25 + 0.5}
       />
     </Scrollyteller>
   ) : null;

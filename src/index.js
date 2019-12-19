@@ -30,6 +30,7 @@ function init() {
       scrollyData={scrollyteller}
       dataUrl={root.dataset.data || `${__webpack_public_path__}data.csv`}
       dotLabel={root.dataset.dotLabel}
+      dotMinRadius={root.dataset.dotMinRadius}
     />,
     scrollyteller.mountNode
   );
