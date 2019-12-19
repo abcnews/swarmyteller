@@ -5,7 +5,7 @@ import asap from "asap";
 import { Delaunay } from "d3-delaunay";
 
 const ALPHA_THRESHOLD = 128;
-const LLOYDS_ALGORITHM_ITERATIONS = 12;
+const MIN_LLOYDS_ALGORITHM_ITERATIONS = 12;
 
 function generatePositionsAndVisibilities(
   originalSize,
@@ -15,30 +15,37 @@ function generatePositionsAndVisibilities(
   alphaRatio
 ) {
   const scalingFactor = size / originalSize;
-  const maxControlPoints = Math.ceil(numPoints / (1 - alphaRatio));
-  const positions = new Float32Array((numPoints + maxControlPoints) * 2);
+  const numTotalPoints = Math.ceil(numPoints / alphaRatio);
+  const numControlPoints = numTotalPoints - numPoints;
+  const positions = new Float32Array(numTotalPoints * 2);
   const visibilities = new BitSet();
   let positionsWriteIndex = 0;
+  let numPointsAdded = 0;
   let numControlPointsAdded = 0;
+  let x, y, alpha;
 
-  for (let _ = 0; _ < numPoints; _++) {
-    let x, y, alpha;
+  function appendPositions() {
+    positions[positionsWriteIndex++] = x;
+    positions[positionsWriteIndex++] = y;
+  }
 
-    while (alpha === undefined || alpha < ALPHA_THRESHOLD) {
-      x = Math.random() * originalSize;
-      y = Math.random() * originalSize;
-      alpha = alphas[originalSize * Math.floor(y) + Math.floor(x)];
+  while (numPointsAdded + numControlPoints < numTotalPoints) {
+    x = Math.random() * size;
+    y = Math.random() * size;
+    alpha =
+      alphas[
+        originalSize * Math.floor(y / scalingFactor) +
+          Math.floor(x / scalingFactor)
+      ];
 
-      if (alpha < ALPHA_THRESHOLD && maxControlPoints > numControlPointsAdded) {
-        numControlPointsAdded++;
-        positions[positionsWriteIndex++] = x * scalingFactor;
-        positions[positionsWriteIndex++] = y * scalingFactor;
-      }
+    if (alpha < ALPHA_THRESHOLD && numControlPoints > numControlPointsAdded) {
+      numControlPointsAdded++;
+      appendPositions();
+    } else if (alpha >= ALPHA_THRESHOLD && numPoints > numPointsAdded) {
+      visibilities.add(positionsWriteIndex >> 1);
+      appendPositions();
+      numPointsAdded++;
     }
-
-    visibilities.add(positionsWriteIndex >> 1);
-    positions[positionsWriteIndex++] = x * scalingFactor;
-    positions[positionsWriteIndex++] = y * scalingFactor;
   }
 
   return { positions, visibilities };
@@ -73,9 +80,7 @@ function process({ id, data }) {
   const alphas = extractAlphasFromPixelData(pixelData);
   const alphaRatio = getAlphaRatio(alphas);
   const originalSize = Math.sqrt(alphas.length);
-  const size = Math.floor(
-    Math.sqrt(numPoints / alphaRatio / Math.PI) * 2 * spacing
-  );
+  const size = Math.floor(Math.sqrt(numPoints / alphaRatio) * spacing * 2);
   const { positions, visibilities } = generatePositionsAndVisibilities(
     originalSize,
     size,
@@ -85,10 +90,14 @@ function process({ id, data }) {
   );
   const delaunay = new Delaunay(positions);
   const voronoi = delaunay.voronoi([0, 0, size, size]);
+  const numIterations = Math.max(
+    MIN_LLOYDS_ALGORITHM_ITERATIONS,
+    Math.ceil(spacing * Math.PI)
+  );
   let iterations = 0;
 
   (function next() {
-    if (iterations++ < LLOYDS_ALGORITHM_ITERATIONS) {
+    if (iterations++ < numIterations) {
       for (let i = 0, len = positions.length; i < len; i += 2) {
         const cell = voronoi.cellPolygon(i >> 1);
 
