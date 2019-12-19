@@ -58,6 +58,7 @@ const SHAPE_IMAGE_URLS = SHAPES.reduce(
   }),
   {}
 );
+const MQ_LARGE = window.matchMedia("(min-width: 1023px)");
 
 function easeCubicInOut(t) {
   return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
@@ -292,7 +293,7 @@ function graph(mountNode, data, options) {
     if (width !== props.width || height !== props.height) {
       width = props.width;
       height = props.height;
-      clusterSimulation = getClusterSimulation();
+      clusterSimulation = getClusterSimulation(mark.align);
       scaleCanvas(canvasEl, canvasCtx, width, height);
       renderCanvas();
     }
@@ -448,9 +449,19 @@ function graph(mountNode, data, options) {
     updateCanvas(clusters);
   };
 
-  function getClusterSimulation() {
+  function getClusterSimulation(align) {
+    const mqLargeCenterX =
+      align === "left"
+        ? (width / 3) * 2
+        : align === "right"
+        ? width / 3
+        : width / 2;
+
     return forceSimulation()
-      .force("gravity", forceCenter(width / 2, height / 2))
+      .force(
+        "gravity",
+        forceCenter(MQ_LARGE.matches ? mqLargeCenterX : width / 2, height / 2)
+      )
       .force(
         "attract",
         forceManyBody()

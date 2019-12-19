@@ -31,9 +31,10 @@
 }
 
 .dotLabel {
+  transform: translate(-50%, 0);
   position: absolute;
   bottom: 1rem;
-  left: 1rem;
+  left: 50%;
   color: #fff;
   font-size: 0.9375rem;
   line-height: 1;
