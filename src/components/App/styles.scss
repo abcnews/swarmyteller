@@ -1,11 +1,3 @@
-.left {
-  composes: left from "../../../node_modules/@abcnews/scrollyteller/src/Panel/index.scss";
-}
-
-.right {
-  composes: right from "../../../node_modules/@abcnews/scrollyteller/src/Panel/index.scss";
-}
-
 .panel {
   &:nth-of-type(2) {
     margin-top: 100vh;
@@ -52,6 +44,10 @@
   & a:hover,
   & a:active {
     text-decoration-color: #fff !important;
+  }
+
+  @media only screen and (min-width: 668px) and (max-width: 1022px) {
+    width: 42rem;
   }
 
   @media only screen and (min-width: 1023px) {
