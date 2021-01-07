@@ -1,55 +1,34 @@
-import React from "react";
-import { select } from "d3-selection";
-import { scaleOrdinal } from "d3-scale";
-import { csv } from "d3-request";
-import { path } from "d3-path";
-import { timer } from "d3-timer";
-import ranger from "power-ranger";
-import { labeler } from "../../libs/labeler";
-import scaleCanvas from "../../libs/scale-canvas";
-import swarm from "../../libs/swarm";
+import React from 'react';
+import { select } from 'd3-selection';
+import { scaleOrdinal } from 'd3-scale';
+import { csv } from 'd3-request';
+import { path } from 'd3-path';
+import { timer } from 'd3-timer';
+import ranger from 'power-ranger';
+import { labeler } from '../../libs/labeler';
+import scaleCanvas from '../../libs/scale-canvas';
+import swarm from '../../libs/swarm';
 
-import {
-  forceSimulation,
-  forceCollide,
-  forceCenter,
-  forceManyBody,
-  forceX,
-  forceY
-} from "d3-force";
-import {
-  deg2rad,
-  getRandomInCircle,
-  hexToRgbA,
-  tspans,
-  wordwrap
-} from "../../utils";
-import "../../poly";
+import { forceSimulation, forceCollide, forceCenter, forceManyBody, forceX, forceY } from 'd3-force';
+import { deg2rad, getRandomInCircle, hexToRgbA, tspans, wordwrap } from '../../utils';
+import '../../poly';
 
-import styles from "./styles.scss";
+import styles from './styles.scss';
 
-const STANDARD_COLOURS = [
-  "#3C6998",
-  "#B05154",
-  "#1B7A7D",
-  "#8D4579",
-  "#97593F",
-  "#605487",
-  "#306C3F"
-];
+const STANDARD_COLOURS = ['#3C6998', '#B05154', '#1B7A7D', '#8D4579', '#97593F', '#605487', '#306C3F'];
 const SHAPES = [
-  "australia",
-  "battery",
-  "bulb",
-  "car",
-  "circle",
-  "dollar",
-  "home",
-  "power",
-  "submarine",
-  "sun",
-  "water",
-  "wrench"
+  'australia',
+  'battery',
+  'bulb',
+  'car',
+  'circle',
+  'dollar',
+  'home',
+  'power',
+  'submarine',
+  'sun',
+  'water',
+  'wrench'
 ];
 const SHAPE_IMAGE_URLS = SHAPES.reduce(
   (memo, shape) => ({
@@ -58,7 +37,7 @@ const SHAPE_IMAGE_URLS = SHAPES.reduce(
   }),
   {}
 );
-const MQ_LARGE = window.matchMedia("(min-width: 1023px)");
+const MQ_LARGE = window.matchMedia('(min-width: 1023px)');
 
 function easeCubicInOut(t) {
   return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
@@ -69,7 +48,7 @@ export default class Dots extends React.Component {
     super(props);
     this.rootRef = React.createRef();
     this.data = new Promise((resolve, reject) => {
-      csv(this.props.dataUrl, (err, json) => {
+      csv(this.props.dataURL, (err, json) => {
         if (err) return reject(err);
         resolve(json);
       });
@@ -91,24 +70,21 @@ export default class Dots extends React.Component {
 
     this.graph = this.data
       .then(data => {
-        const colorMeta = document.querySelector("meta[name=bg-colours]");
-        const colorPropertyMeta = document.querySelector(
-          "meta[name=bg-colour-property]"
-        );
+        const colorMeta = document.querySelector('meta[name=bg-colours]');
+        const colorPropertyMeta = document.querySelector('meta[name=bg-colour-property]');
 
         const options = {};
-        if (colorMeta) options.colors = colorMeta.content.split(",");
-        if (colorPropertyMeta)
-          options.colorProperty = colorPropertyMeta.content;
+        if (colorMeta) options.colors = colorMeta.content.split(',');
+        if (colorPropertyMeta) options.colorProperty = colorPropertyMeta.content;
 
         options.marks = this.props.marks;
 
         // Re-format group names
         data.forEach(row => {
           row.group = row.group
-            .replace(/_/g, "\u00a0")
-            .replace(/\(/g, "(\u202f")
-            .replace(/\)/g, "\u202f)");
+            .replace(/_/g, '\u00a0')
+            .replace(/\(/g, '(\u202f')
+            .replace(/\)/g, '\u202f)');
         });
 
         const viz = graph(this.rootRef.current, data, options);
@@ -116,16 +92,14 @@ export default class Dots extends React.Component {
         return viz;
       })
       .catch(error => {
-        console.error("Could not load data", error);
+        console.error('Could not load data', error);
       });
   }
 
   render() {
     return (
       <div className={styles.dots} ref={this.rootRef}>
-        {this.props.dotLabel && (
-          <div className={styles.dotLabel}>{`= ${this.props.dotLabel}`}</div>
-        )}
+        {this.props.dotLabel && <div className={styles.dotLabel}>{`= ${this.props.dotLabel}`}</div>}
       </div>
     );
   }
@@ -135,7 +109,7 @@ function graph(mountNode, data, options) {
   options = Object.assign(
     {
       colors: STANDARD_COLOURS,
-      colorProperty: "measure",
+      colorProperty: 'measure',
       margin: 20
     },
     options
@@ -166,11 +140,11 @@ function graph(mountNode, data, options) {
 
   // Selections
   const rootSelection = select(mountNode);
-  const canvasSelection = rootSelection.append("canvas");
-  const svgSelection = rootSelection.append("svg");
+  const canvasSelection = rootSelection.append('canvas');
+  const svgSelection = rootSelection.append('svg');
 
   const canvasEl = canvasSelection.node();
-  const canvasCtx = canvasSelection.node().getContext("2d");
+  const canvasCtx = canvasSelection.node().getContext('2d');
 
   let clusterSimulation;
 
@@ -185,7 +159,7 @@ function graph(mountNode, data, options) {
 
       canvasCtx.beginPath();
       canvasCtx.arc(dot.x, dot.y, dot.r, 0, 2 * Math.PI);
-      canvasCtx.fillStyle = dot.color || "rgba(255, 255, 255, 0.8)";
+      canvasCtx.fillStyle = dot.color || 'rgba(255, 255, 255, 0.8)';
       canvasCtx.fill();
     }
 
@@ -193,10 +167,7 @@ function graph(mountNode, data, options) {
   }
 
   function updateCanvas(clusters) {
-    const numPoints = clusters.reduce(
-      (memo, cluster) => (memo += cluster.swarm.points.length),
-      0
-    );
+    const numPoints = clusters.reduce((memo, cluster) => (memo += cluster.swarm.points.length), 0);
     let nextDotIndex = 0;
 
     removedCanvasDots = canvasDots.slice(numPoints);
@@ -210,11 +181,9 @@ function graph(mountNode, data, options) {
         const tx = cluster.x + point[0] - size / 2;
         const ty = cluster.y + point[1] - size / 2;
 
-        const dot =
-          memo[dotIndex] ||
-          (memo.push({ x: cluster.x, y: cluster.y }) && memo[memo.length - 1]);
+        const dot = memo[dotIndex] || (memo.push({ x: cluster.x, y: cluster.y }) && memo[memo.length - 1]);
 
-        dot.scolor = dot.color || "rgba(0,0,0,0)";
+        dot.scolor = dot.color || 'rgba(0,0,0,0)';
         dot.tcolor = cluster.color;
         dot.sx = dot.x;
         dot.sy = dot.y;
@@ -234,15 +203,9 @@ function graph(mountNode, data, options) {
       const progress = Math.min(1, elapsed / duration);
 
       canvasDots.forEach((dot, dotIndex) => {
-        const dotElapsed = Math.max(
-          0,
-          Math.min(dotDuration, elapsed - (dotStagger / numPoints) * dotIndex)
-        );
+        const dotElapsed = Math.max(0, Math.min(dotDuration, elapsed - (dotStagger / numPoints) * dotIndex));
         ``;
-        const dotProgress = Math.min(
-          1,
-          easeCubicInOut(dotElapsed / dotDuration)
-        );
+        const dotProgress = Math.min(1, easeCubicInOut(dotElapsed / dotDuration));
 
         dot.color = dotProgress < 0.5 ? dot.scolor : dot.tcolor;
         dot.x = dot.sx * (1 - dotProgress) + dot.tx * dotProgress;
@@ -252,18 +215,12 @@ function graph(mountNode, data, options) {
       removedCanvasDots.forEach((dot, dotIndex) => {
         const dotElapsed = Math.max(
           0,
-          Math.min(
-            dotRemovalDuration,
-            elapsed - (dotStagger / removedCanvasDots.length) * dotIndex
-          )
+          Math.min(dotRemovalDuration, elapsed - (dotStagger / removedCanvasDots.length) * dotIndex)
         );
         ``;
-        const dotProgress = Math.min(
-          1,
-          easeCubicInOut(dotElapsed / dotRemovalDuration)
-        );
+        const dotProgress = Math.min(1, easeCubicInOut(dotElapsed / dotRemovalDuration));
 
-        dot.color = dotProgress < 0.5 ? dot.color : "rgba(0,0,0,0)";
+        dot.color = dotProgress < 0.5 ? dot.color : 'rgba(0,0,0,0)';
       });
 
       renderCanvas();
@@ -292,11 +249,7 @@ function graph(mountNode, data, options) {
     dotSpacing = props.dotSpacing;
     dotRadius = props.dotRadius;
 
-    if (
-      width !== props.width ||
-      height !== props.height ||
-      align !== mark.align
-    ) {
+    if (width !== props.width || height !== props.height || align !== mark.align) {
       width = props.width;
       height = props.height;
       align = mark.align;
@@ -308,11 +261,8 @@ function graph(mountNode, data, options) {
     // Set color according to measure
     const color = colorScale(mark[colorProperty]);
 
-    rootSelection.style("background-color", color);
-    document.documentElement.style.setProperty(
-      "--panel-bg-color",
-      hexToRgbA(color)
-    );
+    rootSelection.style('background-color', color);
+    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(color));
 
     const measureComparisonGroups = data
       // Just the groups being compared currently
@@ -322,8 +272,7 @@ function graph(mountNode, data, options) {
     const swarms = await Promise.all(
       measureComparisonGroups.map(d =>
         swarm({
-          imageURL:
-            SHAPE_IMAGE_URLS[SHAPES.indexOf(d.shape) > -1 ? d.shape : "circle"],
+          imageURL: SHAPE_IMAGE_URLS[SHAPES.indexOf(d.shape) > -1 ? d.shape : 'circle'],
           numPoints: +d.value,
           spacing: dotSpacing || 3
         })
@@ -334,9 +283,7 @@ function graph(mountNode, data, options) {
     clusters = measureComparisonGroups
       // Add some properties to the groups
       .map((d, i) => {
-        const existingCluster = clusters.find(
-          c => c.measure === d.measure && c.group === d.group
-        );
+        const existingCluster = clusters.find(c => c.measure === d.measure && c.group === d.group);
 
         const cluster = existingCluster || {
           ...d,
@@ -347,7 +294,7 @@ function graph(mountNode, data, options) {
         return {
           ...cluster,
           swarm: swarms[i],
-          color: d.colour || "#fff",
+          color: d.colour || '#fff',
           shape: d.shape,
           r: swarms[i].size / 2,
           dotR: dotRadius || 1,
@@ -365,14 +312,14 @@ function graph(mountNode, data, options) {
       .data(clusters)
       .join(enter =>
         enter
-          .append("g")
-          .attr("class", styles.groupLabel)
+          .append('g')
+          .attr('class', styles.groupLabel)
           .call(g => {
-            g.append("text");
-            g.append("path");
+            g.append('text');
+            g.append('path');
           })
       )
-      .call(label => label.select("text").call(tspans, d => d.groupLines));
+      .call(label => label.select('text').call(tspans, d => d.groupLines));
 
     // Resolve cluster positions
     clusterSimulation.nodes(clusters).alpha(1);
@@ -382,20 +329,10 @@ function graph(mountNode, data, options) {
 
       // Keep it in the bounds.
       clusters.forEach(d => {
-        const cappedR = Math.min(
-          d.r,
-          width / 2 - margin * 2,
-          height / 2 - margin * 2
-        );
+        const cappedR = Math.min(d.r, width / 2 - margin * 2, height / 2 - margin * 2);
 
-        d.x = Math.min(
-          width - margin * 2 - cappedR,
-          Math.max(margin + cappedR, d.x)
-        );
-        d.y = Math.min(
-          height - margin * 2 - cappedR,
-          Math.max(margin + cappedR + 40, d.y)
-        );
+        d.x = Math.min(width - margin * 2 - cappedR, Math.max(margin + cappedR, d.x));
+        d.y = Math.min(height - margin * 2 - cappedR, Math.max(margin + cappedR + 40, d.y));
       });
     }
 
@@ -413,7 +350,7 @@ function graph(mountNode, data, options) {
     });
 
     // Measure the text
-    groupLabels.select("text").each(function(d) {
+    groupLabels.select('text').each(function(d) {
       let bbox = this.getBBox();
       d.label.width = bbox.width;
       d.label.height = bbox.height;
@@ -429,12 +366,10 @@ function graph(mountNode, data, options) {
       .start(clusters.length * 2);
 
     // Position the text
-    groupLabels
-      .select("text")
-      .attr("transform", d => `translate(${d.label.x}, ${d.label.y})`);
+    groupLabels.select('text').attr('transform', d => `translate(${d.label.x}, ${d.label.y})`);
 
     // Draw the arc
-    groupLabels.select("path").attr("d", d => {
+    groupLabels.select('path').attr('d', d => {
       let ctx = path();
       let rad = Math.atan2(d.label.y - d.y, d.label.x - d.x);
       // ctx.arc(
@@ -444,10 +379,7 @@ function graph(mountNode, data, options) {
       //   rad - deg2rad(30),
       //   rad + deg2rad(30)
       // );
-      ctx.moveTo(
-        (d.r + 15) * Math.cos(rad) + d.x,
-        (d.r + 10) * Math.sin(rad) + d.y
-      );
+      ctx.moveTo((d.r + 15) * Math.cos(rad) + d.x, (d.r + 10) * Math.sin(rad) + d.y);
       ctx.lineTo(d.r * Math.cos(rad) + d.x, d.r * Math.sin(rad) + d.y);
       return ctx.toString();
     });
@@ -457,26 +389,18 @@ function graph(mountNode, data, options) {
   };
 
   function getClusterSimulation(align) {
-    const mqLargeCenterX =
-      align === "left"
-        ? (width / 3) * 2
-        : align === "right"
-        ? width / 3
-        : width / 2;
+    const mqLargeCenterX = align === 'left' ? (width / 3) * 2 : align === 'right' ? width / 3 : width / 2;
 
     return forceSimulation()
+      .force('gravity', forceCenter(MQ_LARGE.matches ? mqLargeCenterX : width / 2, height / 2))
       .force(
-        "gravity",
-        forceCenter(MQ_LARGE.matches ? mqLargeCenterX : width / 2, height / 2)
-      )
-      .force(
-        "attract",
+        'attract',
         forceManyBody()
           .strength(100)
           .distanceMin(10)
           .distanceMax(Math.max(width, height) * 2)
       )
-      .force("collide", forceCollide(c => c.r + 40).iterations(3))
+      .force('collide', forceCollide(c => c.r + 40).iterations(3))
       .stop();
   }
 

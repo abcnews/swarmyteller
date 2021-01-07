@@ -1,5 +1,5 @@
-import "core-js/features/typed-array/slice";
-import Worker from "./index.worker.js";
+import 'core-js/features/typed-array/slice';
+import Worker from './index.worker.js';
 
 const NUM_WORKERS = Math.min(navigator.hardwareConcurrency || 1, 7);
 
@@ -30,7 +30,7 @@ const onTaskDone = event => {
 const workers = [...Array(NUM_WORKERS)].map(() => {
   const worker = new Worker();
 
-  worker.addEventListener("message", onTaskDone);
+  worker.addEventListener('message', onTaskDone);
 
   return worker;
 });
@@ -41,8 +41,8 @@ const getNextWorker = () => {
 
   return worker;
 };
-const canvas = document.createElement("canvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
 
 export default data => {
   const { imageURL, numPoints, spacing } = data;
@@ -90,7 +90,7 @@ export default data => {
           addTask();
         };
         imgEl.onerror = reject;
-        imgEl.crossOrigin = "anonymous";
+        imgEl.crossOrigin = 'anonymous';
         imgEl.src = imageURL;
       }
     });

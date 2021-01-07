@@ -1,19 +1,13 @@
-import "core-js/features/array/from";
-import "core-js/features/typed-array/fill";
-import "regenerator-runtime/runtime";
-import asap from "asap";
-import { Delaunay } from "d3-delaunay";
+import 'core-js/features/array/from';
+import 'core-js/features/typed-array/fill';
+import 'regenerator-runtime/runtime';
+import asap from 'asap';
+import { Delaunay } from 'd3-delaunay';
 
 const ALPHA_THRESHOLD = 128;
 const MIN_LLOYDS_ALGORITHM_ITERATIONS = 12;
 
-function generatePositionsAndVisibilities(
-  originalSize,
-  size,
-  numPoints,
-  alphas,
-  alphaRatio
-) {
+function generatePositionsAndVisibilities(originalSize, size, numPoints, alphas, alphaRatio) {
   const scalingFactor = size / originalSize;
   const numTotalPoints = Math.ceil(numPoints / alphaRatio);
   const numControlPoints = numTotalPoints - numPoints;
@@ -32,11 +26,7 @@ function generatePositionsAndVisibilities(
   while (numPointsAdded + numControlPoints < numTotalPoints) {
     x = Math.random() * size;
     y = Math.random() * size;
-    alpha =
-      alphas[
-        originalSize * Math.floor(y / scalingFactor) +
-          Math.floor(x / scalingFactor)
-      ];
+    alpha = alphas[originalSize * Math.floor(y / scalingFactor) + Math.floor(x / scalingFactor)];
 
     if (alpha < ALPHA_THRESHOLD && numControlPoints > numControlPointsAdded) {
       numControlPointsAdded++;
@@ -90,10 +80,7 @@ function process({ id, data }) {
   );
   const delaunay = new Delaunay(positions);
   const voronoi = delaunay.voronoi([0, 0, size, size]);
-  const numIterations = Math.max(
-    MIN_LLOYDS_ALGORITHM_ITERATIONS,
-    Math.ceil(spacing * Math.PI)
-  );
+  const numIterations = Math.max(MIN_LLOYDS_ALGORITHM_ITERATIONS, Math.ceil(spacing * Math.PI));
   let iterations = 0;
 
   (function next() {
@@ -177,4 +164,4 @@ BitSet.prototype.resize = function(index) {
   for (var i = this.words.length; i < count; i++) this.words[i] = 0;
 };
 
-self.addEventListener("message", event => process(event.data));
+self.addEventListener('message', event => process(event.data));

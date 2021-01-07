@@ -20,14 +20,14 @@ export default function scaleCanvas(canvas, context, width, height) {
     canvas.height = height * ratio;
 
     // ...then scale it back down with CSS
-    canvas.style.width = width + "px";
-    canvas.style.height = height + "px";
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
   } else {
     // this is a normal 1:1 device; just scale it simply
     canvas.width = width;
     canvas.height = height;
-    canvas.style.width = "";
-    canvas.style.height = "";
+    canvas.style.width = '';
+    canvas.style.height = '';
   }
 
   // scale the drawing context so everything will work at the higher ratio
