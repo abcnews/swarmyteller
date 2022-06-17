@@ -1,5 +1,4 @@
 import 'core-js/features/typed-array/slice';
-import Worker from './index.worker.js';
 
 const NUM_WORKERS = Math.min(navigator.hardwareConcurrency || 1, 7);
 
@@ -28,7 +27,7 @@ const onTaskDone = event => {
   taskCache[id]._resolve({ points: getPointsFromPointsData(pointsData), size });
 };
 const workers = [...Array(NUM_WORKERS)].map(() => {
-  const worker = new Worker();
+  const worker = new Worker(new URL('./index.worker.js', import.meta.url));
 
   worker.addEventListener('message', onTaskDone);
 
