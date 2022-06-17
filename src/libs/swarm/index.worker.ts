@@ -3,11 +3,38 @@ import 'core-js/features/typed-array/fill';
 import 'regenerator-runtime/runtime';
 import asap from 'asap';
 import { Delaunay } from 'd3-delaunay';
+import type { MessageFromWorker, MessageToWorker } from '.';
 
 const ALPHA_THRESHOLD = 128;
 const MIN_LLOYDS_ALGORITHM_ITERATIONS = 12;
 
-function generatePositionsAndVisibilities(originalSize, size, numPoints, alphas, alphaRatio) {
+class BitSet {
+  words: number[] = [];
+
+  add(index: number) {
+    this.resize(index);
+    this.words[index >>> 5] |= 1 << index;
+  }
+
+  has(index: number) {
+    return (this.words[index >>> 5] & (1 << index)) !== 0;
+  }
+
+  resize(index: number) {
+    var count = (index + 32) >>> 5;
+    for (let i = this.words.length; i < count; i++) {
+      this.words[i] = 0;
+    }
+  }
+}
+
+function generatePositionsAndVisibilities(
+  originalSize: number,
+  size: number,
+  numPoints: number,
+  alphas: Uint8Array,
+  alphaRatio: number
+) {
   const scalingFactor = size / originalSize;
   const numTotalPoints = Math.ceil(numPoints / alphaRatio);
   const numControlPoints = numTotalPoints - numPoints;
@@ -16,7 +43,9 @@ function generatePositionsAndVisibilities(originalSize, size, numPoints, alphas,
   let positionsWriteIndex = 0;
   let numPointsAdded = 0;
   let numControlPointsAdded = 0;
-  let x, y, alpha;
+  let x: number;
+  let y: number;
+  let alpha: number;
 
   function appendPositions() {
     positions[positionsWriteIndex++] = x;
@@ -41,7 +70,7 @@ function generatePositionsAndVisibilities(originalSize, size, numPoints, alphas,
   return { positions, visibilities };
 }
 
-function extractAlphasFromPixelData(pixelData) {
+function extractAlphasFromPixelData(pixelData: Uint8ClampedArray) {
   const alphas = new Uint8Array(pixelData.length >> 2);
 
   for (let i = 0, len = pixelData.length; i < len; i += 4) {
@@ -51,7 +80,7 @@ function extractAlphasFromPixelData(pixelData) {
   return alphas;
 }
 
-function getAlphaRatio(alphas) {
+function getAlphaRatio(alphas: Uint8Array) {
   let i = 0;
   let len = alphas.length;
   let numAlphasAboveThreshold = 0;
@@ -65,7 +94,7 @@ function getAlphaRatio(alphas) {
   return numAlphasAboveThreshold / len;
 }
 
-function process({ id, data }) {
+function process({ id, data }: MessageToWorker) {
   const { numPoints, pixelData, spacing } = data;
   const alphas = extractAlphasFromPixelData(pixelData);
   const alphaRatio = getAlphaRatio(alphas);
@@ -119,21 +148,22 @@ function process({ id, data }) {
         pointsData,
         size
       }
-    };
+    } as MessageFromWorker;
 
+    // @ts-ignore
     self.postMessage(message, [message.data.pointsData.buffer]);
   })();
 }
 
-function centroid(polygon) {
-  var i = -1,
-    n = polygon.length,
-    x = 0,
-    y = 0,
-    a,
-    b = polygon[n - 1],
-    c,
-    k = 0;
+function centroid(polygon: Delaunay.Polygon) {
+  let i = -1;
+  let n = polygon.length;
+  let x = 0;
+  let y = 0;
+  let a: Delaunay.Point;
+  let b = polygon[n - 1];
+  let c: number;
+  let k = 0;
 
   while (++i < n) {
     a = b;
@@ -146,22 +176,4 @@ function centroid(polygon) {
   return (k *= 3), [x / k, y / k];
 }
 
-function BitSet() {
-  this.words = [];
-}
-
-BitSet.prototype.add = function(index) {
-  this.resize(index);
-  this.words[index >>> 5] |= 1 << index;
-};
-
-BitSet.prototype.has = function(index) {
-  return (this.words[index >>> 5] & (1 << index)) !== 0;
-};
-
-BitSet.prototype.resize = function(index) {
-  var count = (index + 32) >>> 5;
-  for (var i = this.words.length; i < count; i++) this.words[i] = 0;
-};
-
-self.addEventListener('message', event => process(event.data));
+self.addEventListener('message', (event: MessageEvent<MessageToWorker>) => process(event.data));

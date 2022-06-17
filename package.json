@@ -16,7 +16,20 @@
     "start": "aunty serve"
   },
   "devDependencies": {
-    "@abcnews/aunty": "^12.2.0"
+    "@abcnews/aunty": "^12.2.0",
+    "@types/asap": "^2.0.0",
+    "@types/core-js": "^2.5.5",
+    "@types/d3-array": "^3.0.3",
+    "@types/d3-delaunay": "^6.0.1",
+    "@types/d3-force": "^3.0.3",
+    "@types/d3-path": "^3.0.0",
+    "@types/d3-request": "^1.0.6",
+    "@types/d3-scale": "^4.0.2",
+    "@types/d3-selection": "^3.0.2",
+    "@types/d3-timer": "^3.0.0",
+    "@types/react": "^16.14.28",
+    "@types/react-dom": "^16.9.16",
+    "@types/regenerator-runtime": "^0.13.1"
   },
   "dependencies": {
     "@abcnews/alternating-case-to-object": "^2.0.0",
@@ -35,8 +48,8 @@
     "d3-selection": "^1.4.0",
     "d3-timer": "^1.0.10",
     "power-ranger": "^1.1.0",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "regenerator-runtime": "^0.13.3"
   }
 }
