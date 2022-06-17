@@ -20,7 +20,7 @@ function init() {
     const [decodedAppProps] = selectMounts('scrollytellerNAMEswarmyteller', { markAsUsed: false }).map(el => {
       const mountProps = acto(getMountValue(el));
 
-      el.setAttribute('id', el.getAttribute('id').replace(/APP[a-z0-9]+/, ''));
+      el.setAttribute('id', el.getAttribute('id')?.replace(/APP[a-z0-9]+/, '') || '');
 
       return mountProps.app ? decode(mountProps.app) : null;
     });
@@ -28,12 +28,12 @@ function init() {
     // Get scrollteller config, including `align` as a data prop
     const scrollyData = loadScrollyteller('swarmyteller', 'u-full');
 
-    scrollyData.panels.forEach(panel => {
+    scrollyData.panels.forEach((panel) => {
       panel.data.align = panel.align;
     });
 
     // Keep the DOM tidy.
-    if (scrollyData && scrollyData.mountNode) {
+    if (scrollyData && scrollyData.mountNode && scrollyData.mountNode.parentElement) {
       while (isMount(scrollyData.mountNode.nextElementSibling)) {
         scrollyData.mountNode.parentElement.removeChild(scrollyData.mountNode.nextElementSibling);
       }
