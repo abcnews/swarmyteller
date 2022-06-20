@@ -18,7 +18,7 @@ whenOdysseyLoaded.then(() => {
 
     el.setAttribute('id', (el.getAttribute('id') || '').replace(/APP[a-z0-9]+/, ''));
 
-    return mountProps.app ? (decode(mountProps.app) as AppProps) : null;
+    return mountProps.app ? decode<AppProps>(mountProps.app as string) : null;
   });
 
   // Get scrollteller config, including `align` as a data prop
