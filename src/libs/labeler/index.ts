@@ -1,13 +1,14 @@
 // Fork of https://github.com/tinker10/D3-Labeler
 
-interface Label {
+export interface Label {
   x: number;
   y: number;
   width: number;
   height: number;
+  name?: string;
 }
 
-interface Anchor {
+export interface Anchor {
   x: number;
   y: number;
   r: number;
@@ -18,13 +19,19 @@ type Energy = (index: number, lab?: Label[], anc?: Anchor[]) => number;
 type Schedule = (currT: number, initialT: number, nsweeps: number) => number;
 
 interface Labeler {
-  start: (nsweeps: number) => void;
-  width: (x?: number) => number | Labeler;
-  height: (x?: number) => number | Labeler;
-  label: (x?: Label[]) => Label[] | Labeler;
-  anchor: (x?: Anchor[]) => Anchor[] | Labeler;
-  alt_energy: (x?: Energy) => Energy | Labeler;
-  alt_schedule: (x?: Schedule) => Schedule | Labeler;
+  start(nsweeps: number): void;
+  width(): number;
+  width(x: number): Labeler;
+  height(): number;
+  height(x: number): Labeler;
+  label(): Label[];
+  label(x: Label[]): Labeler;
+  anchor(): Anchor[];
+  anchor(x: Anchor[]): Labeler;
+  alt_energy(): Energy;
+  alt_energy(x: Energy): Labeler;
+  alt_schedule(): Schedule;
+  alt_schedule(x: Schedule): Labeler;
 }
 
 export function labeler() {
@@ -244,7 +251,7 @@ export function labeler() {
     return !(mua < 0 || mua > 1 || mub < 0 || mub > 1);
   };
 
-  const cooling_schedule = function (currT, initialT, nsweeps) {
+  const cooling_schedule: Schedule = function (currT, initialT, nsweeps) {
     // linear cooling
     return currT - initialT / nsweeps;
   };
@@ -252,7 +259,7 @@ export function labeler() {
   // The returned labeler object
   const labeler = {} as Labeler;
 
-  labeler.start = function (nsweeps) {
+  function start(nsweeps: number) {
     // main simulated annealing function
     const m = lab.length;
     const initialT = 1.0;
@@ -270,49 +277,68 @@ export function labeler() {
         ? user_defined_schedule(currT, initialT, nsweeps)
         : cooling_schedule(currT, initialT, nsweeps);
     }
-  };
+  }
+  labeler.start = start;
 
-  labeler.width = function (x) {
+  function width(): number;
+  function width(x: number): Labeler;
+  function width(x?: number) {
     // users insert graph width
     if (typeof x === 'undefined') return w;
     w = x;
     return labeler;
-  };
+  }
+  labeler.width = width;
 
-  labeler.height = function (x) {
+  function height(): number;
+  function height(x: number): Labeler;
+  function height(x?: number) {
     // users insert graph height
     if (typeof x === 'undefined') return h;
     h = x;
     return labeler;
-  };
+  }
+  labeler.height = height;
 
-  labeler.label = function (x) {
+  function label(): Label[];
+  function label(x: Label[]): Labeler;
+  function label(x?: Label[]): Label[] | Labeler {
     // users insert label positions
     if (typeof x === 'undefined') return lab;
     lab = x;
     return labeler;
-  };
+  }
+  labeler.label = label;
 
-  labeler.anchor = function (x) {
+  function anchor(): Anchor[];
+  function anchor(x: Anchor[]): Labeler;
+  function anchor(x?: Anchor[]) {
     // users insert anchor positions
     if (typeof x === 'undefined') return anc;
     anc = x;
     return labeler;
-  };
+  }
+  labeler.anchor = anchor;
 
   // user defined energy
-  labeler.alt_energy = function (x) {
+  function alt_energy(): Energy;
+  function alt_energy(x: Energy): Labeler;
+  function alt_energy(x?: Energy): Energy | Labeler {
     if (typeof x === 'undefined') return user_defined_energy ? user_defined_energy : energy;
     user_defined_energy = x;
     return labeler;
-  };
+  }
+  labeler.alt_energy = alt_energy;
 
   // user defined cooling_schedule
-  labeler.alt_schedule = function (x) {
+  function alt_schedule(): Schedule;
+  function alt_schedule(x: Schedule): Labeler;
+  function alt_schedule(x?: Schedule): Schedule | Labeler {
     if (typeof x === 'undefined') return user_defined_schedule ? user_defined_schedule : cooling_schedule;
     user_defined_schedule = x;
     return labeler;
-  };
+  }
+  labeler.alt_schedule = alt_schedule;
 
   return labeler;
 }

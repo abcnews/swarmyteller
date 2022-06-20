@@ -1,7 +1,7 @@
 import 'core-js/features/typed-array/slice';
 import type { Delaunay } from 'd3-delaunay';
 
-interface Swarm {
+export interface Swarm {
   points: Delaunay.Point[];
   size: number;
 }
