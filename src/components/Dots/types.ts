@@ -16,7 +16,7 @@ export interface CanvasDot extends Dot {
 
 export interface Cluster extends Dot {
   label: any;
-  anchor: any;
+  anchor?: any;
 
   swarm: any;
   shape: string;
