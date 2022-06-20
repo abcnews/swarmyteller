@@ -1,134 +1,46 @@
-import React from 'react';
 import { select } from 'd3-selection';
 import { scaleOrdinal } from 'd3-scale';
-import { csv } from 'd3-request';
 import { path } from 'd3-path';
 import { timer } from 'd3-timer';
-import ranger from 'power-ranger';
-import { labeler } from '../../libs/labeler';
-import scaleCanvas from '../../libs/scale-canvas';
-import swarm from '../../libs/swarm';
-
 import { forceSimulation, forceCollide, forceCenter, forceManyBody, forceX, forceY } from 'd3-force';
-import { deg2rad, getRandomInCircle, hexToRgbA, tspans, wordwrap } from '../../utils';
-import '../../poly';
 
 import styles from './styles.scss';
 
-const STANDARD_COLOURS = ['#3C6998', '#B05154', '#1B7A7D', '#8D4579', '#97593F', '#605487', '#306C3F'];
-const SHAPES = [
-  'australia',
-  'battery',
-  'bulb',
-  'car',
-  'circle',
-  'dollar',
-  'home',
-  'power',
-  'submarine',
-  'sun',
-  'water',
-  'wrench'
-];
-const SHAPE_IMAGE_URLS = SHAPES.reduce(
-  (memo, shape) => ({
-    ...memo,
-    [shape]: `${__webpack_public_path__}shapes/${shape}.png`
-  }),
-  {}
-);
-const MQ_LARGE = window.matchMedia('(min-width: 1023px)');
+import '../../poly';
+import { labeler } from '../../libs/labeler';
+import scaleCanvas from '../../libs/scale-canvas';
+import swarm from '../../libs/swarm';
+import { easeCubicInOut, deg2rad, getRandomInCircle, hexToRgbA, tspans, wordwrap } from '../../utils';
+import { SHAPE_IMAGE_URLS, SHAPES, BG_COLOURS, MQ_LARGE } from '../../constants';
 
-function easeCubicInOut(t) {
-  return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
+import { Mark, Dot, CanvasDot, Cluster } from './types';
+
+export interface GraphInputs {
+  mark: Mark,
+  dotSpacing: number,
+  dotRadius: number,
+  height: number,
+  width: number
 }
 
-export default class Dots extends React.Component {
-  constructor(props) {
-    super(props);
-    this.rootRef = React.createRef();
-    this.data = new Promise((resolve, reject) => {
-      csv(this.props.dataURL, (err, json) => {
-        if (err) return reject(err);
-        resolve(json);
-      });
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.graph.then(g => g.update(nextProps));
-  }
-
-  shouldComponentUpdate() {
-    return false;
-  }
-
-  componentDidMount() {
-    if (!this.rootRef.current) {
-      return;
-    }
-
-    this.graph = this.data
-      .then(data => {
-        const colorMeta = document.querySelector('meta[name=bg-colours]');
-        const colorPropertyMeta = document.querySelector('meta[name=bg-colour-property]');
-
-        const options = {};
-        if (colorMeta) options.colors = colorMeta.content.split(',');
-        if (colorPropertyMeta) options.colorProperty = colorPropertyMeta.content;
-
-        options.marks = this.props.marks;
-
-        // Re-format group names
-        data.forEach(row => {
-          row.group = row.group
-            .replace(/_/g, '\u00a0')
-            .replace(/\(/g, '(\u202f')
-            .replace(/\)/g, '\u202f)');
-        });
-
-        const viz = graph(this.rootRef.current, data, options);
-        viz.update(this.props);
-        return viz;
-      })
-      .catch(error => {
-        console.error('Could not load data', error);
-      });
-  }
-
-  render() {
-    return (
-      <div className={styles.dots} ref={this.rootRef}>
-        {this.props.dotLabel && <div className={styles.dotLabel}>{`= ${this.props.dotLabel}`}</div>}
-      </div>
-    );
-  }
+export interface Graph {
+  update: (props: GraphInputs) => void;
 }
 
-function graph(mountNode, data, options) {
+export function graph(mountNode, options) {
   options = Object.assign(
     {
-      colors: STANDARD_COLOURS,
-      colorProperty: 'measure',
       margin: 20
     },
     options
   );
 
-  let dots = [];
-  let clusters = [];
-  let canvasDots = [];
-  let removedCanvasDots = [];
+  let dots: Dot[] = [];
+  let clusters: Cluster[] = [];
+  let canvasDots: CanvasDot[] = [];
+  let removedCanvasDots: CanvasDot[] = [];
 
-  const { colors, colorProperty, margin } = options;
-  const domain = options.marks.reduce((acc, row) => {
-    if (acc.indexOf(row[colorProperty]) === -1) {
-      acc.push(row[colorProperty]);
-    }
-    return acc;
-  }, []);
-
-  const colorScale = scaleOrdinal(domain, colors);
+  const { margin } = options;
 
   let width;
   let height;
@@ -231,21 +143,12 @@ function graph(mountNode, data, options) {
     });
   }
 
-  const update = async props => {
+  const update = async (props: GraphInputs) => {
     const { mark } = props;
-
-    if (
-      !mark ||
-      (align === mark.align &&
-        measure === mark.measure &&
-        comparison === mark.comparison &&
-        dotSpacing === props.dotSpacing &&
-        dotRadius === props.dotRadius)
-    )
+    if (!mark) {
       return;
+    }
 
-    measure = mark.measure;
-    comparison = mark.comparison;
     dotSpacing = props.dotSpacing;
     dotRadius = props.dotRadius;
 
@@ -259,47 +162,40 @@ function graph(mountNode, data, options) {
     }
 
     // Set color according to measure
-    const color = colorScale(mark[colorProperty]);
-
-    rootSelection.style('background-color', color);
-    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(color));
-
-    const measureComparisonGroups = data
-      // Just the groups being compared currently
-      .filter(d => d.measure === measure && d.comparison === comparison);
+    const bgColor = mark.backgroundColor || BG_COLOURS[0];
+    rootSelection.style('background-color', bgColor);
+    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
 
     // Calculate and layout swarms
-    const swarms = await Promise.all(
-      measureComparisonGroups.map(d =>
-        swarm({
-          imageURL: SHAPE_IMAGE_URLS[SHAPES.indexOf(d.shape) > -1 ? d.shape : 'circle'],
-          numPoints: +d.value,
-          spacing: dotSpacing || 3
-        })
-      )
-    );
+    const swarms = await Promise.all(mark.swarms.map(s => swarm({
+      imageURL: SHAPE_IMAGE_URLS[s.shape || 'circle'] || SHAPE_IMAGE_URLS.circle,
+      numPoints: +s.value,
+      spacing: dotSpacing || 3,
+    })));
 
     // New data
-    clusters = measureComparisonGroups
+    clusters = swarms
       // Add some properties to the groups
-      .map((d, i) => {
-        const existingCluster = clusters.find(c => c.measure === d.measure && c.group === d.group);
+      .map((s, i) => {
+        const swarmDef = mark.swarms[i];
+
+        const existingCluster = clusters.find(c => c.value === swarmDef.value && c.label === swarmDef.value);
 
         const cluster = existingCluster || {
-          ...d,
+          ...swarmDef,
           x: width / 2,
           y: height / 2
         };
 
         return {
           ...cluster,
-          swarm: swarms[i],
-          color: d.colour || '#fff',
-          shape: d.shape,
-          r: swarms[i].size / 2,
+          swarm: s,
+          color: swarmDef.color || '#fff',
+          shape: swarmDef.shape || 'circle',
+          r: s.size / 2,
           dotR: dotRadius || 1,
-          value: +d.value,
-          groupLines: wordwrap(d.group, 10)
+          value: +swarmDef.value,
+          groupLines: wordwrap(swarmDef.label, 10)
         };
       });
 
@@ -351,6 +247,7 @@ function graph(mountNode, data, options) {
 
     // Measure the text
     groupLabels.select('text').each(function(d) {
+      // @ts-ignore
       let bbox = this.getBBox();
       d.label.width = bbox.width;
       d.label.height = bbox.height;

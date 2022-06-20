@@ -179,3 +179,7 @@ export function wordwrap(line, maxCharactersPerLine, minCharactersPerLine, monos
     return a - b;
   }
 }
+
+export function easeCubicInOut(t) {
+  return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
+}

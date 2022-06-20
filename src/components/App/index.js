@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Scrollyteller from '@abcnews/scrollyteller';
 import Dots from '../Dots';
+import { decode } from '@abcnews/base-36-props';
 import scrollytellerPanelStyles from '@abcnews/scrollyteller/src/Panel/index.module.scss';
 import styles from './styles.scss';
 
 export default function App({
   scrollyData,
-  dataURL = `${__webpack_public_path__}data.csv`,
-  dotLabel,
-  dotMinRadius = 1
 }) {
   const [mark, setMark] = useState();
   const [dimensions, setDimensions] = useState([window.innerWidth, window.innerHeight]);
@@ -30,17 +28,15 @@ export default function App({
     <Scrollyteller
       panels={scrollyData.panels}
       panelClassName={`${scrollytellerPanelStyles.base} ${styles.panel}`}
-      onMarker={mark => setMark(mark)}
+      onMarker={m => m?.state && setMark(decode(m.state))}
     >
       <Dots
         mark={mark}
-        marks={scrollyData.panels.map(d => d.data)}
-        dataURL={dataURL}
         width={dimensions[0]}
         height={dimensions[1]}
-        dotLabel={dotLabel}
-        dotRadius={minDimensionBasedScaling(dotMinRadius)}
-        dotSpacing={minDimensionBasedScaling(dotMinRadius) * 1.25 + 0.5}
+        dotLabel={mark?.dotLabel}
+        dotRadius={minDimensionBasedScaling(mark?.dotRadius || 1)}
+        dotSpacing={minDimensionBasedScaling(mark?.dotRadius || 1) * 1.25 + 0.5}
       />
     </Scrollyteller>
   ) : null;

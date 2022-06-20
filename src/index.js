@@ -16,7 +16,7 @@ function renderApp() {
 function init() {
   try {
     // Isolate and decode APP prop from opening scrollyteller tag
-    // (which may contain `dataURL`, 'dotLabel' and `dotMinRadius` props for <App />)
+    // (which may contain 'dotLabel' and `dotMinRadius` props for <App />)
     const [decodedAppProps] = selectMounts('scrollytellerNAMEswarmyteller', { markAsUsed: false }).map(el => {
       const mountProps = acto(getMountValue(el));
 

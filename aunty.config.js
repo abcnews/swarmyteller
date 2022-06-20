@@ -5,8 +5,7 @@ const { ProvidePlugin } = require('webpack');
 module.exports = {
   type: 'react',
   build: {
-    entry: ['index'],
-    // entry: ['index', 'editor']
+    entry: ['index', 'editor']
   },
   serve: {
     hot: false
@@ -14,18 +13,6 @@ module.exports = {
   webpack: config => {
     config.devtool = 'source-map';
     const rules = config.module.rules;
-
-    // rules.unshift({
-    //   test: /\.worker\.js$/,
-    //   use: [
-    //     {
-    //       loader: 'worker-loader',
-    //       options: {
-    //         inline: true
-    //       }
-    //     }
-    //   ],
-    // });
 
     // Stop `import()`-ed chunks from being split into `[name].js` and `vendors~[name].js`
     config.optimization = {
