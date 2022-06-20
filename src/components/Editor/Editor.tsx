@@ -43,13 +43,18 @@ const Editor = () => {
     
     const obj = acto(marker);
 
-    const state = decode(obj.state) as any;
-    if (!state) {
+    try {
+      const state = decode(obj.state as string) as any;
+      if (!state) {
+        return alert('invalid marker');
+      }
+      setDotRadius(state.dotRadius);
+      setSwarms(state.swarms);
+      setBackgroundColor(state.backgroundColor);
+    } catch (e) {
+      console.error(e);
       return alert('invalid marker');
     }
-    setDotRadius(state.dotRadius);
-    setSwarms(state.swarms);
-    setBackgroundColor(state.backgroundColor);
   };
 
   const minDimension = 500;

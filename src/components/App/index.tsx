@@ -60,7 +60,7 @@ const App: React.FC<AppProps> = ({
 
   return panels && dimensions ? (
     <Scrollyteller
-      panels={scrollyData.panels}
+      panels={panels}
       panelClassName={`${scrollytellerPanelStyles.base} ${styles.panel}`}
       onMarker={m => m?.state && setMark(decode(m.state))}
     >
