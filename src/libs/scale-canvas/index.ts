@@ -1,15 +1,21 @@
-export default function scaleCanvas(canvas, context, width, height) {
+type WebkitCanvasRenderingContext2D = CanvasRenderingContext2D & {
+  webkitBackingStorePixelRatio: number;
+};
+
+export default function scaleCanvas(
+  canvas: HTMLCanvasElement,
+  context: CanvasRenderingContext2D,
+  width: number,
+  height: number
+) {
   // assume the device pixel ratio is 1 if the browser doesn't specify it
   const devicePixelRatio = window.devicePixelRatio || 1;
 
   // determine the 'backing store ratio' of the canvas context
   const backingStoreRatio =
-    context.webkitBackingStorePixelRatio ||
-    context.mozBackingStorePixelRatio ||
-    context.msBackingStorePixelRatio ||
-    context.oBackingStorePixelRatio ||
-    context.backingStorePixelRatio ||
-    1;
+    'webkitBackingStorePixelRatio' in context
+      ? (context as WebkitCanvasRenderingContext2D).webkitBackingStorePixelRatio
+      : 1;
 
   // determine the actual ratio we want to draw at
   const ratio = devicePixelRatio / backingStoreRatio;

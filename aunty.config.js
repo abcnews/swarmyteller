@@ -1,30 +1,41 @@
-const { resolve } = require('path');
+// const fs = require('fs');
+// const path = require('path');
+// const { ProvidePlugin } = require('webpack');
 
 module.exports = {
-  webpack: config => {
-    const rules = config.module.rules;
-    const scriptsRule = rules.find(x => x.__hint__ === 'scripts');
-
-    scriptsRule.include.push(
-      resolve(__dirname, 'node_modules/d3-array'),
-      resolve(__dirname, 'node_modules/d3-delaunay'),
-      resolve(__dirname, 'node_modules/d3-force'),
-      resolve(__dirname, 'node_modules/d3-scale'),
-      resolve(__dirname, 'node_modules/delaunator')
-    );
-
-    rules.unshift({
-      test: /\.worker\.js$/,
-      use: [
-        {
-          loader: 'worker-loader',
-          options: {
-            inline: true
-          }
-        }
-      ]
-    });
-
-    return config;
-  }
+  type: 'react',
+  build: {
+    entry: ['index', 'editor', 'googledoc']
+  },
+  serve: {
+    hot: false
+  },
+  // webpack: config => {
+  //   config.devtool = 'source-map';
+  //
+  //   config.plugins.push(
+  //     new ProvidePlugin({
+  //       process: 'process/browser'
+  //     })
+  //   );
+  //
+  //   return config;
+  // },
+  // deploy: [
+  //   {
+  //     to: '/www/res/sites/news-projects/<name>/<id>'
+  //   },
+  //   config => {
+  //     fs.writeFileSync(
+  //       path.join(__dirname, 'redirect', 'index.js'),
+  //       `window.location = String(window.location).replace('/latest/', '/${config.id}/')`
+  //     );
+  //
+  //     return {
+  //       ...config,
+  //       from: 'redirect',
+  //       to: '/www/res/sites/news-projects/<name>/latest'
+  //     };
+  //   }
+  // ]
 };

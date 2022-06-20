@@ -1,7 +1,7 @@
 // Polyfill for lower than ES2015
 Math.hypot =
   Math.hypot ||
-  function() {
+  function () {
     var y = 0;
     var length = arguments.length;
 
@@ -13,3 +13,5 @@ Math.hypot =
     }
     return Math.sqrt(y);
   };
+
+export {};

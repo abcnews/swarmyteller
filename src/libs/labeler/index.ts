@@ -1,16 +1,47 @@
 // Fork of https://github.com/tinker10/D3-Labeler
 
-export function labeler() {
-  // The returned labeler object
-  const labeler = {};
+export interface Label {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  name?: string;
+}
 
+export interface Anchor {
+  x: number;
+  y: number;
+  r: number;
+}
+
+type Energy = (index: number, lab?: Label[], anc?: Anchor[]) => number;
+
+type Schedule = (currT: number, initialT: number, nsweeps: number) => number;
+
+interface Labeler {
+  start(nsweeps: number): void;
+  width(): number;
+  width(x: number): Labeler;
+  height(): number;
+  height(x: number): Labeler;
+  label(): Label[];
+  label(x: Label[]): Labeler;
+  anchor(): Anchor[];
+  anchor(x: Anchor[]): Labeler;
+  alt_energy(): Energy;
+  alt_energy(x: Energy): Labeler;
+  alt_schedule(): Schedule;
+  alt_schedule(x: Schedule): Labeler;
+}
+
+export function labeler() {
   // User definable data
-  let lab = [];
-  let anc = [];
+  let lab: Label[] = [];
+  let anc: Anchor[] = [];
   let w = 1; // box width
   let h = 1; // box width
-  let user_defined_energy = null;
-  let user_defined_schedule = null;
+  let user_defined_energy: Energy | null = null;
+  let user_defined_schedule: Schedule | null = null;
 
   const max_move = 5.0;
   const max_angle = 0.2;
@@ -26,10 +57,9 @@ export function labeler() {
   const w_lab_anc = 30.0; // label-anchor overlap
   const w_orient = 3.0; // orientation bias
 
-  const getEnergy = (i, lab, anc) =>
-    user_defined_energy ? user_defined_energy(i, lab, anc) : energy(i);
+  const getEnergy: Energy = (i, lab, anc) => (user_defined_energy ? user_defined_energy(i, lab, anc) : energy(i));
 
-  const energy = function(index) {
+  const energy: Energy = function (index) {
     // energy function, tailored for label placement
 
     let result = 0;
@@ -63,23 +93,20 @@ export function labeler() {
     const x22 = label.x + label.width;
     const y22 = label.y + 2.0;
 
-    let x11, x12, y11, y12, x_overlap, y_overlap, overlap_area;
+    let x11: number;
+    let x12: number;
+    let y11: number;
+    let y12: number;
+    let x_overlap: number;
+    let y_overlap: number;
+    let overlap_area: number;
 
     const m = lab.length;
 
     for (let i = 0; i < m; i++) {
       if (i != index) {
         // penalty for intersection of leader lines
-        overlap = intersect(
-          anchor.x,
-          label.x,
-          anc[i].x,
-          lab[i].x,
-          anchor.y,
-          label.y,
-          anc[i].y,
-          lab[i].y
-        );
+        overlap = intersect(anchor.x, label.x, anc[i].x, lab[i].x, anchor.y, label.y, anc[i].y, lab[i].y);
         if (overlap) result += w_inter;
 
         // penalty for label-label overlap
@@ -107,7 +134,7 @@ export function labeler() {
     return result;
   };
 
-  const mcmove = function(currT) {
+  const mcmove = function (currT: number) {
     // Monte Carlo translation move
 
     // select a random label
@@ -147,7 +174,7 @@ export function labeler() {
     }
   };
 
-  const mcrotate = function(currT) {
+  const mcrotate = function (currT: number) {
     // Monte Carlo rotation move
 
     // select a random label
@@ -201,7 +228,16 @@ export function labeler() {
     }
   };
 
-  const intersect = function(x1, x2, x3, x4, y1, y2, y3, y4) {
+  const intersect = function (
+    x1: number,
+    x2: number,
+    x3: number,
+    x4: number,
+    y1: number,
+    y2: number,
+    y3: number,
+    y4: number
+  ) {
     // returns true if two lines intersect, else false
     // from http://paulbourke.net/geometry/lineline2d/
 
@@ -215,12 +251,15 @@ export function labeler() {
     return !(mua < 0 || mua > 1 || mub < 0 || mub > 1);
   };
 
-  const cooling_schedule = function(currT, initialT, nsweeps) {
+  const cooling_schedule: Schedule = function (currT, initialT, nsweeps) {
     // linear cooling
     return currT - initialT / nsweeps;
   };
 
-  labeler.start = function(nsweeps) {
+  // The returned labeler object
+  const labeler = {} as Labeler;
+
+  function start(nsweeps: number) {
     // main simulated annealing function
     const m = lab.length;
     const initialT = 1.0;
@@ -238,51 +277,68 @@ export function labeler() {
         ? user_defined_schedule(currT, initialT, nsweeps)
         : cooling_schedule(currT, initialT, nsweeps);
     }
-  };
+  }
+  labeler.start = start;
 
-  labeler.width = function(x) {
+  function width(): number;
+  function width(x: number): Labeler;
+  function width(x?: number) {
     // users insert graph width
-    if (!arguments.length) return w;
+    if (typeof x === 'undefined') return w;
     w = x;
     return labeler;
-  };
+  }
+  labeler.width = width;
 
-  labeler.height = function(x) {
+  function height(): number;
+  function height(x: number): Labeler;
+  function height(x?: number) {
     // users insert graph height
-    if (!arguments.length) return h;
+    if (typeof x === 'undefined') return h;
     h = x;
     return labeler;
-  };
+  }
+  labeler.height = height;
 
-  labeler.label = function(x) {
+  function label(): Label[];
+  function label(x: Label[]): Labeler;
+  function label(x?: Label[]): Label[] | Labeler {
     // users insert label positions
-    if (!arguments.length) return lab;
+    if (typeof x === 'undefined') return lab;
     lab = x;
     return labeler;
-  };
+  }
+  labeler.label = label;
 
-  labeler.anchor = function(x) {
+  function anchor(): Anchor[];
+  function anchor(x: Anchor[]): Labeler;
+  function anchor(x?: Anchor[]) {
     // users insert anchor positions
-    if (!arguments.length) return anc;
+    if (typeof x === 'undefined') return anc;
     anc = x;
     return labeler;
-  };
+  }
+  labeler.anchor = anchor;
 
   // user defined energy
-  labeler.alt_energy = function(x) {
-    if (!arguments.length)
-      return user_defined_energy ? user_defined_energy : energy;
+  function alt_energy(): Energy;
+  function alt_energy(x: Energy): Labeler;
+  function alt_energy(x?: Energy): Energy | Labeler {
+    if (typeof x === 'undefined') return user_defined_energy ? user_defined_energy : energy;
     user_defined_energy = x;
     return labeler;
-  };
+  }
+  labeler.alt_energy = alt_energy;
 
   // user defined cooling_schedule
-  labeler.alt_schedule = function(x) {
-    if (!arguments.length)
-      return user_defined_schedule ? user_defined_energy : cooling_schedule;
+  function alt_schedule(): Schedule;
+  function alt_schedule(x: Schedule): Labeler;
+  function alt_schedule(x?: Schedule): Schedule | Labeler {
+    if (typeof x === 'undefined') return user_defined_schedule ? user_defined_schedule : cooling_schedule;
     user_defined_schedule = x;
     return labeler;
-  };
+  }
+  labeler.alt_schedule = alt_schedule;
 
   return labeler;
 }
