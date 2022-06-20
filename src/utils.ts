@@ -63,38 +63,6 @@ enum CHAR_W {
   ';' = 2
 }
 
-export const deg2rad = (deg: number) => (deg * Math.PI) / 180;
-
-// For circle initialisation
-export const getRandomInCircle = (xMin: number, xMax: number, yMin: number, yMax: number) => {
-  xMin = Math.ceil(xMin);
-  yMin = Math.ceil(yMin);
-  xMax = Math.floor(xMax);
-  yMax = Math.floor(yMax);
-
-  let randomPoint = {
-    x: Math.floor(Math.random() * (xMax - xMin + 1)) + xMin,
-    y: Math.floor(Math.random() * (yMax - yMin + 1)) + yMin
-  };
-
-  let center = {
-    x: (xMin + xMax) / 2,
-    y: yMin + yMax / 2
-  };
-
-  let distance = Math.hypot(center.x - randomPoint.x, center.y - randomPoint.y);
-
-  while (distance > Math.min(xMax - xMin, yMax - yMin) / 2) {
-    randomPoint = {
-      x: Math.floor(Math.random() * (xMax - xMin + 1)) + xMin,
-      y: Math.floor(Math.random() * (yMax - yMin + 1)) + yMin
-    };
-    distance = Math.hypot(center.x - randomPoint.x, center.y - randomPoint.y);
-  }
-
-  return randomPoint;
-};
-
 export const hexToRgbA = (hexString: string, a = '0.85') => {
   if (!/^#([A-Fa-f0-9]{3}){1,2}$/.test(hexString)) {
     throw new Error('Bad Hex');
