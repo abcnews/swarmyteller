@@ -3,9 +3,11 @@ import acto from '@abcnews/alternating-case-to-object';
 import { decode } from '@abcnews/base-36-props';
 import { whenOdysseyLoaded } from '@abcnews/env-utils';
 import { getMountValue, isMount, selectMounts } from '@abcnews/mount-utils';
+import type { ScrollytellerDefinition } from '@abcnews/scrollyteller';
 import { loadScrollyteller } from '@abcnews/scrollyteller';
 import React from 'react';
 import { render } from 'react-dom';
+import type { AppProps, PanelConfig } from './components/App';
 import App from './components/App';
 
 whenOdysseyLoaded.then(() => {
@@ -14,37 +16,40 @@ whenOdysseyLoaded.then(() => {
   const [decodedAppProps] = selectMounts('scrollytellerNAMEswarmyteller', { markAsUsed: false }).map(el => {
     const mountProps = acto(getMountValue(el));
 
-    el.setAttribute('id', el.getAttribute('id').replace(/APP[a-z0-9]+/, ''));
+    el.setAttribute('id', (el.getAttribute('id') || '').replace(/APP[a-z0-9]+/, ''));
 
-    return mountProps.app ? decode(mountProps.app) : null;
+    return mountProps.app ? (decode(mountProps.app) as AppProps) : null;
   });
 
   // Get scrollteller config, including `align` as a data prop
-  const scrollyData = loadScrollyteller('swarmyteller', 'u-full');
+  const scrollytellerDefinition: ScrollytellerDefinition<PanelConfig> = loadScrollyteller('swarmyteller', 'u-full');
 
-  scrollyData.panels.forEach(panel => {
+  scrollytellerDefinition.panels.forEach(panel => {
     panel.data.align = panel.align;
   });
 
   // Keep the DOM tidy.
-  if (scrollyData && scrollyData.mountNode) {
-    while (isMount(scrollyData.mountNode.nextElementSibling)) {
-      scrollyData.mountNode.parentElement.removeChild(scrollyData.mountNode.nextElementSibling);
+  if (scrollytellerDefinition && scrollytellerDefinition.mountNode) {
+    while (
+      isMount(scrollytellerDefinition.mountNode.nextElementSibling) &&
+      scrollytellerDefinition.mountNode.parentElement
+    ) {
+      scrollytellerDefinition.mountNode.parentElement.removeChild(scrollytellerDefinition.mountNode.nextElementSibling);
     }
   }
 
   // Set <App /> props for initial and subsequent renders
-  const appProps = {
+  const appProps: AppProps = {
     ...(decodedAppProps || {}),
-    scrollyData
+    panels: scrollytellerDefinition.panels
   };
 
   // Render app
-  render(<App {...appProps} />, appProps.scrollyData.mountNode);
+  render(<App {...appProps} />, scrollytellerDefinition.mountNode);
 
   // [async: after render] Add data-* attriubutes to aligned panels so we can override some styles
   setTimeout(() => {
-    appProps.scrollyData.panels.forEach(panel => {
+    scrollytellerDefinition.panels.forEach(panel => {
       if (!panel.align || !panel.nodes.length || !panel.nodes[0].parentElement) {
         return;
       }

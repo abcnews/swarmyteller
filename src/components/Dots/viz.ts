@@ -1,22 +1,22 @@
-import React from 'react';
-import { select } from 'd3-selection';
-import { scaleOrdinal } from 'd3-scale';
-import { csv } from 'd3-request';
 import { path } from 'd3-path';
+import type { Simulation } from 'd3-force';
+import { forceSimulation, forceCollide, forceCenter, forceManyBody } from 'd3-force';
+import { scaleOrdinal } from 'd3-scale';
+import { select } from 'd3-selection';
 import { timer } from 'd3-timer';
-import ranger from 'power-ranger';
+import type { Anchor, Label } from '../../libs/labeler';
 import { labeler } from '../../libs/labeler';
 import scaleCanvas from '../../libs/scale-canvas';
-import swarm from '../../libs/swarm';
-
-import { forceSimulation, forceCollide, forceCenter, forceManyBody, forceX, forceY } from 'd3-force';
-import { deg2rad, getRandomInCircle, hexToRgbA, tspans, wordwrap } from '../../utils';
-import '../../poly';
-
+import type { Swarm } from '../../libs/swarm';
+import createSwarm from '../../libs/swarm';
+import { hexToRgbA, tspans, wordwrap } from '../../utils';
+import type { PanelConfig } from '../App';
 import styles from './styles.scss';
+import type { Data, DotsProps } from '.';
 
-const STANDARD_COLOURS = ['#3C6998', '#B05154', '#1B7A7D', '#8D4579', '#97593F', '#605487', '#306C3F'];
-const SHAPES = [
+export const COLOR_PROPERTIES = ['comparison', 'measure'] as const;
+const STANDARD_COLOURS = ['#3C6998', '#B05154', '#1B7A7D', '#8D4579', '#97593F', '#605487', '#306C3F'] as const;
+export const SHAPES = [
   'australia',
   'battery',
   'bulb',
@@ -29,130 +29,107 @@ const SHAPES = [
   'sun',
   'water',
   'wrench'
-];
+] as const;
+
 const SHAPE_IMAGE_URLS = SHAPES.reduce(
   (memo, shape) => ({
     ...memo,
     [shape]: `${__webpack_public_path__}shapes/${shape}.png`
   }),
-  {}
+  {} as Record<typeof SHAPES[number], string>
 );
 const MQ_LARGE = window.matchMedia('(min-width: 1023px)');
 
-function easeCubicInOut(t) {
+function easeCubicInOut(t: number) {
   return ((t *= 2) <= 1 ? t * t * t : (t -= 2) * t * t + 2) / 2;
 }
 
-export default class Dots extends React.Component {
-  constructor(props) {
-    super(props);
-    this.rootRef = React.createRef();
-    this.data = new Promise((resolve, reject) => {
-      csv(this.props.dataURL, (err, json) => {
-        if (err) return reject(err);
-        resolve(json);
-      });
-    });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    this.graph.then(g => g.update(nextProps));
-  }
-
-  shouldComponentUpdate() {
-    return false;
-  }
-
-  componentDidMount() {
-    if (!this.rootRef.current) {
-      return;
-    }
-
-    this.graph = this.data
-      .then(data => {
-        const colorMeta = document.querySelector('meta[name=bg-colours]');
-        const colorPropertyMeta = document.querySelector('meta[name=bg-colour-property]');
-
-        const options = {};
-        if (colorMeta) options.colors = colorMeta.content.split(',');
-        if (colorPropertyMeta) options.colorProperty = colorPropertyMeta.content;
-
-        options.marks = this.props.marks;
-
-        // Re-format group names
-        data.forEach(row => {
-          row.group = row.group
-            .replace(/_/g, '\u00a0')
-            .replace(/\(/g, '(\u202f')
-            .replace(/\)/g, '\u202f)');
-        });
-
-        const viz = graph(this.rootRef.current, data, options);
-        viz.update(this.props);
-        return viz;
-      })
-      .catch(error => {
-        console.error('Could not load data', error);
-      });
-  }
-
-  render() {
-    return (
-      <div className={styles.dots} ref={this.rootRef}>
-        {this.props.dotLabel && <div className={styles.dotLabel}>{`= ${this.props.dotLabel}`}</div>}
-      </div>
-    );
-  }
+export interface VizSettings {
+  colorProperty: typeof COLOR_PROPERTIES[number];
+  colors: string[];
+  margin: number;
+  marks: PanelConfig[];
 }
 
-function graph(mountNode, data, options) {
-  options = Object.assign(
-    {
-      colors: STANDARD_COLOURS,
-      colorProperty: 'measure',
-      margin: 20
-    },
-    options
-  );
+export type Viz = {
+  update: (props: DotsProps) => void;
+};
 
-  let dots = [];
-  let clusters = [];
-  let canvasDots = [];
-  let removedCanvasDots = [];
+type Dot = {
+  x: number;
+  sx: number;
+  tx: number;
+  y: number;
+  sy: number;
+  ty: number;
+  r: number;
+  color: string;
+  scolor: string;
+  tcolor: string;
+};
 
-  const { colors, colorProperty, margin } = options;
-  const domain = options.marks.reduce((acc, row) => {
+type Cluster = {
+  measure: string;
+  comparison: string;
+  group: string;
+  value: number;
+  color: string;
+  shape: typeof SHAPES[number];
+  x: number;
+  y: number;
+  r: number;
+  dotR: number;
+  groupLines: string[];
+  swarm: Swarm;
+  label: Label;
+  anchor: Anchor;
+};
+
+export const createViz = (mountNode: HTMLElement, data: Data, options: Partial<VizSettings>): Viz => {
+  const settings = {
+    colorProperty: 'measure',
+    colors: STANDARD_COLOURS,
+    margin: 20,
+    ...options
+  } as VizSettings;
+
+  let clusters: Cluster[] = [];
+  let canvasDots: Dot[] = [];
+  let removedCanvasDots: Dot[] = [];
+
+  const { colors, colorProperty, margin } = settings;
+  const domain = settings.marks.reduce((acc, row) => {
     if (acc.indexOf(row[colorProperty]) === -1) {
       acc.push(row[colorProperty]);
     }
     return acc;
-  }, []);
+  }, [] as string[]);
 
   const colorScale = scaleOrdinal(domain, colors);
 
-  let width;
-  let height;
-  let align;
-  let measure;
-  let comparison;
-  let dotSpacing;
-  let dotRadius;
+  let width: number;
+  let height: number;
+  let align: string | undefined;
+  let measure: string;
+  let comparison: string;
+  let dotSpacing: number;
+  let dotRadius: number;
 
   // Selections
   const rootSelection = select(mountNode);
   const canvasSelection = rootSelection.append('canvas');
   const svgSelection = rootSelection.append('svg');
 
-  const canvasEl = canvasSelection.node();
-  const canvasCtx = canvasSelection.node().getContext('2d');
+  const canvasEl = canvasSelection.node() as HTMLCanvasElement;
+  const canvasCtx = canvasEl.getContext('2d') as CanvasRenderingContext2D;
 
-  let clusterSimulation;
+  let clusterSimulation: Simulation<Cluster, undefined>;
 
   function renderCanvas() {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, width, height);
 
-    const renderableDots = [...canvasDots, ...removedCanvasDots];
+    const renderableDots: Dot[] = [...canvasDots, ...removedCanvasDots];
 
     for (let i = 0, len = renderableDots.length; i < len; i++) {
       const dot = renderableDots[i];
@@ -166,7 +143,7 @@ function graph(mountNode, data, options) {
     canvasCtx.restore();
   }
 
-  function updateCanvas(clusters) {
+  function updateCanvas(clusters: Cluster[]) {
     const numPoints = clusters.reduce((memo, cluster) => (memo += cluster.swarm.points.length), 0);
     let nextDotIndex = 0;
 
@@ -181,7 +158,11 @@ function graph(mountNode, data, options) {
         const tx = cluster.x + point[0] - size / 2;
         const ty = cluster.y + point[1] - size / 2;
 
-        const dot = memo[dotIndex] || (memo.push({ x: cluster.x, y: cluster.y }) && memo[memo.length - 1]);
+        if (!memo[dotIndex]) {
+          memo.push({ x: cluster.x, y: cluster.y } as Dot);
+        }
+
+        const dot: Dot = memo[dotIndex];
 
         dot.scolor = dot.color || 'rgba(0,0,0,0)';
         dot.tcolor = cluster.color;
@@ -204,7 +185,6 @@ function graph(mountNode, data, options) {
 
       canvasDots.forEach((dot, dotIndex) => {
         const dotElapsed = Math.max(0, Math.min(dotDuration, elapsed - (dotStagger / numPoints) * dotIndex));
-        ``;
         const dotProgress = Math.min(1, easeCubicInOut(dotElapsed / dotDuration));
 
         dot.color = dotProgress < 0.5 ? dot.scolor : dot.tcolor;
@@ -231,7 +211,7 @@ function graph(mountNode, data, options) {
     });
   }
 
-  const update = async props => {
+  const update = async (props: DotsProps) => {
     const { mark } = props;
 
     if (
@@ -271,7 +251,7 @@ function graph(mountNode, data, options) {
     // Calculate and layout swarms
     const swarms = await Promise.all(
       measureComparisonGroups.map(d =>
-        swarm({
+        createSwarm({
           imageURL: SHAPE_IMAGE_URLS[SHAPES.indexOf(d.shape) > -1 ? d.shape : 'circle'],
           numPoints: +d.value,
           spacing: dotSpacing || 3
@@ -286,21 +266,23 @@ function graph(mountNode, data, options) {
         const existingCluster = clusters.find(c => c.measure === d.measure && c.group === d.group);
 
         const cluster = existingCluster || {
-          ...d,
+          measure: d.measure,
+          comparison: d.comparison,
+          group: d.group,
           x: width / 2,
           y: height / 2
         };
 
         return {
           ...cluster,
-          swarm: swarms[i],
+          value: +d.value,
           color: d.colour || '#fff',
           shape: d.shape,
           r: swarms[i].size / 2,
           dotR: dotRadius || 1,
-          value: +d.value,
-          groupLines: wordwrap(d.group, 10)
-        };
+          groupLines: wordwrap(d.group, 10),
+          swarm: swarms[i]
+        } as Cluster;
       });
 
     // Basic fix for labels going off top of screen on small mobiles
@@ -341,7 +323,7 @@ function graph(mountNode, data, options) {
       d.label = {
         x: d.x,
         y: d.y - d.r - 3 - 17 * d.groupLines.length
-      };
+      } as Label;
       d.anchor = {
         x: d.x,
         y: d.y,
@@ -350,8 +332,8 @@ function graph(mountNode, data, options) {
     });
 
     // Measure the text
-    groupLabels.select('text').each(function(d) {
-      let bbox = this.getBBox();
+    groupLabels.select('text').each(function (d) {
+      let bbox = (this as SVGTextElement).getBBox();
       d.label.width = bbox.width;
       d.label.height = bbox.height;
       d.label.name = d.group;
@@ -372,13 +354,7 @@ function graph(mountNode, data, options) {
     groupLabels.select('path').attr('d', d => {
       let ctx = path();
       let rad = Math.atan2(d.label.y - d.y, d.label.x - d.x);
-      // ctx.arc(
-      //   d.anchor.x,
-      //   d.anchor.y,
-      //   d.r,
-      //   rad - deg2rad(30),
-      //   rad + deg2rad(30)
-      // );
+
       ctx.moveTo((d.r + 15) * Math.cos(rad) + d.x, (d.r + 10) * Math.sin(rad) + d.y);
       ctx.lineTo(d.r * Math.cos(rad) + d.x, d.r * Math.sin(rad) + d.y);
       return ctx.toString();
@@ -388,21 +364,21 @@ function graph(mountNode, data, options) {
     updateCanvas(clusters);
   };
 
-  function getClusterSimulation(align) {
+  function getClusterSimulation(align: string | undefined) {
     const mqLargeCenterX = align === 'left' ? (width / 3) * 2 : align === 'right' ? width / 3 : width / 2;
 
-    return forceSimulation()
-      .force('gravity', forceCenter(MQ_LARGE.matches ? mqLargeCenterX : width / 2, height / 2))
+    return forceSimulation<Cluster>()
+      .force('gravity', forceCenter<Cluster>(MQ_LARGE.matches ? mqLargeCenterX : width / 2, height / 2))
       .force(
         'attract',
-        forceManyBody()
+        forceManyBody<Cluster>()
           .strength(100)
           .distanceMin(10)
           .distanceMax(Math.max(width, height) * 2)
       )
-      .force('collide', forceCollide(c => c.r + 40).iterations(3))
+      .force('collide', forceCollide<Cluster>(c => c.r + 40).iterations(3))
       .stop();
   }
 
   return { update };
-}
+};
