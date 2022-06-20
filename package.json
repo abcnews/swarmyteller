@@ -29,7 +29,8 @@
     "@types/d3-timer": "^3.0.0",
     "@types/react": "^16.14.28",
     "@types/react-dom": "^16.9.16",
-    "@types/regenerator-runtime": "^0.13.1"
+    "@types/regenerator-runtime": "^0.13.1",
+    "@types/webpack-env": "^1.17.0"
   },
   "dependencies": {
     "@abcnews/alternating-case-to-object": "^2.0.0",
@@ -47,7 +48,6 @@
     "d3-scale": "^3.0.0",
     "d3-selection": "^1.4.0",
     "d3-timer": "^1.0.10",
-    "power-ranger": "^1.1.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "regenerator-runtime": "^0.13.3"
