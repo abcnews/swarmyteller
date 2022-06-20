@@ -2,9 +2,9 @@
 
 A fork of [groupyteller](https://github.com/abcnews/groupyteller) which displays populations as swarms of dots that can take on simple forms and colours.
 
-Swarmyteller has a [Builder](https://www.abc.net.au/res/sites/news-projects/swarmyteller/latest/editor.html) that exports self-sufficient markers - this means that CSV data is no longer required.
+Swarmyteller has a [Builder](https://www.abc.net.au/res/sites/news-projects/swarmyteller/latest) that exports self-sufficient markers - this means that CSV data is no longer required.
 
-This uses the [scrollyteller](https://github.com/abcnews/scrollyteller) react component.
+Uses the [scrollyteller](https://github.com/abcnews/scrollyteller) react component.
 
 ## Usage
 
@@ -12,7 +12,7 @@ The APP value ("base36") on the opening scrollyteller tag should be replaced by 
 
 `dotLabel` - small label at the bottom describing what a single dot represents (is fixed for the entire scrollyteller)
 
-Markers should be created using the [Builder](https://www.abc.net.au/res/sites/news-projects/swarmyteller/latest/editor.html).
+Markers should be created using the [Builder](https://www.abc.net.au/res/sites/news-projects/swarmyteller/latest).
 
 ```
 #scrollytellerNAMEswarmytellerAPP5lt7nwcky921g7tyxlofpp0rn2hyz0vph4uu1rx
