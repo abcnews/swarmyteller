@@ -1,43 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-const { ProvidePlugin } = require('webpack');
+// const fs = require('fs');
+// const path = require('path');
+// const { ProvidePlugin } = require('webpack');
 
 module.exports = {
   type: 'react',
   build: {
-    entry: ['index', 'editor']
+    entry: ['index', 'editor', 'googledoc']
   },
   serve: {
     hot: false
   },
-  webpack: config => {
-    config.devtool = 'source-map';
-    const rules = config.module.rules;
-
-    // Stop `import()`-ed chunks from being split into `[name].js` and `vendors~[name].js`
-    config.optimization = {
-      ...(config.optimization || {}),
-      splitChunks: {
-        cacheGroups: {
-          vendors: false
-        }
-      }
-    };
-
-    // Polyfill some node.js APIs via module resolution fallbacks
-    config.resolve.fallback = {
-      ...(config.resolve.fallback || {}),
-      stream: require.resolve('stream-browserify')
-    };
-
-    config.plugins.push(
-      new ProvidePlugin({
-        process: 'process/browser'
-      })
-    );
-
-    return config;
-  },
+  // webpack: config => {
+  //   config.devtool = 'source-map';
+  //
+  //   config.plugins.push(
+  //     new ProvidePlugin({
+  //       process: 'process/browser'
+  //     })
+  //   );
+  //
+  //   return config;
+  // },
   // deploy: [
   //   {
   //     to: '/www/res/sites/news-projects/<name>/<id>'

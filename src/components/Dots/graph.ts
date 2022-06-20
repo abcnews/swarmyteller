@@ -3,6 +3,7 @@ import { scaleOrdinal } from 'd3-scale';
 import { path } from 'd3-path';
 import { timer } from 'd3-timer';
 import { forceSimulation, forceCollide, forceCenter, forceManyBody, forceX, forceY } from 'd3-force';
+import deepEqual from 'deep-equal';
 
 import styles from './styles.scss';
 
@@ -10,7 +11,7 @@ import '../../poly';
 import { labeler } from '../../libs/labeler';
 import scaleCanvas from '../../libs/scale-canvas';
 import swarm from '../../libs/swarm';
-import { easeCubicInOut, deg2rad, getRandomInCircle, hexToRgbA, tspans, wordwrap } from '../../utils';
+import { easeCubicInOut, hexToRgbA, tspans, wordwrap } from '../../utils';
 import { SHAPE_IMAGE_URLS, SHAPES, BG_COLOURS, MQ_LARGE } from '../../constants';
 
 import { Mark, Dot, CanvasDot, Cluster } from './types';
@@ -39,6 +40,7 @@ export function graph(mountNode, options) {
   let clusters: Cluster[] = [];
   let canvasDots: CanvasDot[] = [];
   let removedCanvasDots: CanvasDot[] = [];
+  let prevProps: GraphInputs | null = null;
 
   const { margin } = options;
 
@@ -145,9 +147,10 @@ export function graph(mountNode, options) {
 
   const update = async (props: GraphInputs) => {
     const { mark } = props;
-    if (!mark) {
+    if (!mark || deepEqual(props, prevProps)) {
       return;
     }
+    prevProps = props;
 
     dotSpacing = props.dotSpacing;
     dotRadius = props.dotRadius;
