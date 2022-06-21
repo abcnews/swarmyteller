@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Dots from '../Dots';
 import styles from './styles.scss';
 
 import acto from '@abcnews/alternating-case-to-object';
 import { encode, decode } from '@abcnews/base-36-props';
 import { GithubPicker } from 'react-color';
-import { Select, SelectItem, CodeSnippet, Button, Tile, Tabs, TabList, Tab, TabPanels, TabPanel, TextInput, NumberInput } from '@carbon/react';
-import { Add, Subtract } from '@carbon/icons-react';
+import { InlineLoading, Select, SelectItem, CodeSnippet, Button, Tile, Tabs, TabList, Tab, TabPanels, TabPanel, TextInput, NumberInput } from '@carbon/react';
+import { Add, Download, TrashCan, Copy, TagImport } from '@carbon/icons-react';
 
 import { BG_COLOURS, DOT_COLOURS, SHAPES } from '../../constants';
 
@@ -16,13 +16,128 @@ const DEFAULT_SWARM = {
   value: 100,
 };
 
+const SNAPSHOTS_LOCALSTORAGE_KEY = 'swarmyteller-editor-snapshots';
+const DEFAULT_PROPS = {
+  dotRadius: 2,
+  backgroundColor: BG_COLOURS[0],
+  swarms: [DEFAULT_SWARM],
+};
+
 const Editor = () => {
-  // const [dotLabel, setDotLabel] = useState('');
-  const [dotRadius, setDotRadius] = useState(2);
-  const [backgroundColor, setBackgroundColor] = useState(BG_COLOURS[0]);
+  const [snapshots, setSnapshots] = useState(JSON.parse(localStorage.getItem(SNAPSHOTS_LOCALSTORAGE_KEY) || '{}'));
+  const [dotRadius, setDotRadius] = useState(DEFAULT_PROPS.dotRadius);
+  const [backgroundColor, setBackgroundColor] = useState(DEFAULT_PROPS.backgroundColor);
   const [swarms, setSwarms] = useState([
     { ...DEFAULT_SWARM },
   ]);
+
+  const setState = (encodedState: string) => {
+    try {
+      const state = decode(encodedState) as any;
+      setDotRadius(state.dotRadius || DEFAULT_PROPS.dotRadius);
+      setBackgroundColor(state.backgroundColor || DEFAULT_PROPS.backgroundColor);
+      setSwarms(state.swarms || DEFAULT_PROPS.swarms);
+      return state;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  };
+
+  const initialUrlParamProps = useMemo(
+    () => {
+      const urlQuery = String(window.location.search);
+      if (!urlQuery) {
+        return;
+       }
+       const props = JSON.parse(
+         '{"' + urlQuery.substring(1).replace(/&/g, '","').replace(/=/g, '":"') + '"}',
+         (key, value) => (key === '' ? value : decodeURIComponent(value))
+       );
+       if (props.state) {
+         setState(props.state);
+       }
+    },
+    []
+  );
+
+  const stateEncoded = encode({
+    dotRadius,
+    backgroundColor, 
+    swarms
+  });
+
+  useEffect(() => {
+    history.replaceState('', document.title, `?state=${stateEncoded}`);
+  }, [stateEncoded]);
+
+  const createSnapshot = () => {
+    const name = prompt('What would you like to call this snapshot?');
+
+    if (!name || !name.length) {
+      return alert('No name was provided');
+    } else if (snapshots[name]) {
+      return alert(`Can't overwrite existing snapshot`);
+    }
+    const nextSnapshots = {
+      [name]: stateEncoded,
+      ...snapshots
+    };
+
+    localStorage.setItem(SNAPSHOTS_LOCALSTORAGE_KEY, JSON.stringify(nextSnapshots));
+    setSnapshots(nextSnapshots);
+  };
+
+  const deleteSnapshot = (name: string) => {
+    const nextSnapshots = { ...snapshots };
+
+    delete nextSnapshots[name];
+
+    localStorage.setItem(SNAPSHOTS_LOCALSTORAGE_KEY, JSON.stringify(nextSnapshots));
+    setSnapshots(nextSnapshots);
+  };
+
+
+  const [isDownloadingFallback, setIsDownloadingFallback] = useState(false);
+  const downloadFallback = async () => {
+    setIsDownloadingFallback(true);
+
+    const fallbackAutomationURL =
+      `https://abcnews-cors-anywhere.herokuapp.com/https://fallback-automation.drzax.now.sh/api?url=${encodeURIComponent(
+        String(document.location.href).split('?')[0] + `?state=${stateEncoded}`
+      )}&width=600&selector=.`;
+
+    const res = await fetch(fallbackAutomationURL);
+    const blob = await res.blob();
+    const data = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = data;
+    link.download = `swarmy-fallback-${stateEncoded.slice(10)}.png`;
+
+    // this is necessary as link.click() does not work on the latest firefox
+    link.dispatchEvent(
+      new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      })
+    );
+    setIsDownloadingFallback(false);
+  };
+
+  const importMarker = () => {
+    const marker = prompt('Paste a marker here to import its configuration');
+    if (!marker || !marker.length) {
+      return alert('No marker was provided');
+    }
+    
+    const obj = acto(marker);
+    const newState = setState(obj.state as string);
+    if (!newState) {
+      return alert('invalid marker');
+    }
+  };
 
   const updateSwarmProp = (i, key, value) => {
     setSwarms([
@@ -35,45 +150,21 @@ const Editor = () => {
     ]);
   }
 
-  const importMarker = () => {
-    const marker = prompt('Paste a marker here to import its configuration');
-    if (!marker || !marker.length) {
-      return alert('No marker was provided');
-    }
-    
-    const obj = acto(marker);
+  const width = window.innerWidth - 350;
+  const height = window.innerHeight - 15;
 
-    try {
-      const state = decode(obj.state as string) as any;
-      if (!state) {
-        return alert('invalid marker');
-      }
-      setDotRadius(state.dotRadius);
-      setSwarms(state.swarms);
-      setBackgroundColor(state.backgroundColor);
-    } catch (e) {
-      console.error(e);
-      return alert('invalid marker');
-    }
-  };
-
-  const minDimension = 500;
+  const minDimension = Math.min(width, height);
   const minDimensionBasedScaling = value => value * (minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1);
 
-  const stateEncoded = encode({
-    // dotLabel,
-    dotRadius,
-    backgroundColor, 
-    swarms
-  });
+  const googleDocPreviewLink = window.location.pathname.replace('/editor.html', '/google-doc.html');
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.preview}>
         <Dots
           mark={{ backgroundColor, swarms }}
-          width={700}
-          height={500}
+          width={width}
+          height={height}
           dotLabel={''}
           dotRadius={minDimensionBasedScaling(dotRadius)}
           dotSpacing={minDimensionBasedScaling(dotRadius) * 1.25 + 0.5}
@@ -86,7 +177,7 @@ const Editor = () => {
             <Tab>Markers</Tab>
           </TabList>
           <TabPanels>
-            <TabPanel>
+            <TabPanel style={{ maxHeight: height - 50, overflow: 'auto' }}>
                 <NumberInput
                   label="Dot Radius"
                   value={dotRadius}
@@ -102,12 +193,21 @@ const Editor = () => {
                 <h4>Swarms</h4>
                 {swarms.map((s, i) =>
                   <Tile className={styles.swarm}>
-                    <TextInput
-                      type="text"
-                      labelText="Label"
-                      value={s.label}
-                      onChange={e => updateSwarmProp(i, 'label', e.target.value)}
-                     />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: 0 }}>
+                      <TextInput
+                        type="text"
+                        labelText="Label"
+                        value={s.label}
+                        onChange={e => updateSwarmProp(i, 'label', e.target.value)}
+                       />
+                      <Button
+                        renderIcon={TrashCan}
+                        iconDescription="Remove Swarm"
+                        hasIconOnly
+                        size="sm"
+                        onClick={e => setSwarms([...swarms.slice(0, i), ...swarms.slice(i + 1)])}
+                      />
+                    </div>
                     <NumberInput
                       label="Dots"
                       value={s.value}
@@ -121,39 +221,123 @@ const Editor = () => {
                      >
                       {SHAPES.map(s => <SelectItem key={s} text={s} value={s} />)}
                     </Select>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: 0 }}>
-                      <ColorPicker
-                        labelText="Dot Colour"
-                        color={s.color}
-                        colors={DOT_COLOURS}
-                        onChange={e => updateSwarmProp(i, 'color', e.hex)}
-                      />
-                      <Button
-                        renderIcon={Subtract}
-                        iconDescription="Remove Swarm"
-                        hasIconOnly
-                        size="md"
-                        onClick={e => setSwarms([...swarms.slice(0, i), ...swarms.slice(i + 1)])}
-                      />
-                    </div>
+                    <ColorPicker
+                      labelText="Dot Colour"
+                      color={s.color}
+                      colors={DOT_COLOURS}
+                      onChange={e => updateSwarmProp(i, 'color', e.hex)}
+                    />
                   </Tile>
                 )}
 
                 <Button
                   renderIcon={Add}
-                  iconDescription="Add Swarm"
-                  hasIconOnly
-                  size="md"
+                  size="sm"
                   onClick={e => setSwarms([...swarms, { ...DEFAULT_SWARM }])}
-                />
+                >
+                  Add Swarm
+                </Button>
             </TabPanel>
-            <TabPanel>
-              <CodeSnippet>
+            <TabPanel style={{ maxHeight: height - 50, overflow: 'auto' }}>
+              <h4>Markers</h4>
+
+              <span className="cds--label">
+                The state of the builder is encoded into a swarmyteller marker.
+              </span>
+              <span className="cds--label">
+                When pasted into the <a href={googleDocPreviewLink}>Google Doc preview</a> or
+                a Core Media article, the swarmyteller will reflect the state of the marker.
+              </span>
+              <CodeSnippet style={{ marginBottom: '0.5rem', }}>
                 #markSTATE{stateEncoded}
               </CodeSnippet>
-              <div style={{ padding: '1rem' }} onClick={importMarker}>
-                <Button>Import Marker</Button>
+
+              <span className="cds--label">
+                Replace the current state with a marker.
+              </span>
+              <Button
+                style={{ marginBottom: '0.5rem', }}
+                onClick={importMarker}
+                renderIcon={TagImport}
+                size="sm"
+              >
+                Import Marker
+              </Button>
+
+              <span className="cds--label">Swarmyteller open and close tags:</span>
+              <CodeSnippet type="inline">
+                #scrollytellerNAMEswarmyteller
+              </CodeSnippet>
+              <CodeSnippet type="inline">
+                #endscrollyteller
+              </CodeSnippet>
+
+              <h4>Fallbacks</h4>
+              {isDownloadingFallback ?
+                <InlineLoading
+                  style={{ marginTop: '0.5rem', marginBottom: '0.5rem', }}
+                  description={'Generating Image'}
+                  status={'active'}
+                  /> :
+                <Button
+                  style={{ marginTop: '0.5rem', marginBottom: '0.5rem', }}
+                  onClick={downloadFallback}
+                  renderIcon={Download}
+                  size="sm"
+                >
+                  Download Fallback
+                </Button>
+              }
+
+              <h4>Snapshots</h4>
+
+              <span className="cds--label">
+                A snapshot is a saved state of the builder. They can be shared as URLs.
+              </span>
+
+              <Button
+                style={{ marginTop: '0.5rem', marginBottom: '0.5rem', }}
+                onClick={createSnapshot}
+                renderIcon={Add}
+                size="sm"
+              >
+                Take Snapshot
+              </Button>
+
+              <div>
+                {Object.keys(snapshots).reverse().map(name => (
+                  <Tile key={name} className={styles.snapshot}>
+                    <a
+                      style={{ maxWidth: 160 }}
+                      href={snapshots[name]}
+                      onClick={event => {
+                        event.preventDefault();
+                        setState(snapshots[name]);
+                      }}
+                    >{name}</a>
+                    <div>
+                      <Button
+                        style={{ marginRight: '0.5rem' }}
+                        onClick={() =>
+                          navigator.clipboard.writeText(String(window.location.href).split('?')[0] + '?state=' + snapshots[name])
+                        }
+                        renderIcon={Copy}
+                        iconDescription="Copy Snapshot URL"
+                        hasIconOnly
+                        size="sm"
+                      />
+                      <Button
+                        onClick={() => deleteSnapshot(name)}
+                        renderIcon={TrashCan}
+                        iconDescription="Delete Snapshot"
+                        hasIconOnly
+                        size="sm"
+                      />
+                    </div>
+                  </Tile>
+                ))}
               </div>
+
             </TabPanel>
           </TabPanels>
         </Tabs>

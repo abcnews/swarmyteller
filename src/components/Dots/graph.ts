@@ -190,6 +190,13 @@ export function graph(mountNode, options) {
           y: height / 2
         };
 
+        //
+        // Underscores are converted to spaces, and prevent wrapping
+        //
+        const label = swarmDef.label.replace(/_/g, '\u00a0')
+            .replace(/\(/g, '(\u202f')
+            .replace(/\)/g, '\u202f)');
+
         return {
           ...cluster,
           swarm: s,
@@ -198,7 +205,7 @@ export function graph(mountNode, options) {
           r: s.size / 2,
           dotR: dotRadius || 1,
           value: +swarmDef.value,
-          groupLines: wordwrap(swarmDef.label, 10)
+          groupLines: wordwrap(label, 10)
         };
       });
 

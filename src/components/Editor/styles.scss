@@ -1,17 +1,21 @@
 .wrapper {
   display: flex;
-}
-
-.preview {
+  width: 100vw;
+  height: 100vh;
 }
 
 .controls {
   position: absolute;
   right: 0;
   z-index: 9999;
-  width: 400px;
+  width: 320px;
   height: 100vh;
   background: white;
+
+  h4 {
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+  }
 }
 
 .swarm {
@@ -56,3 +60,9 @@
   left: 0px;
 }
 
+.snapshot {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
