@@ -26,6 +26,7 @@ export interface GraphInputs {
 
 export interface Graph {
   update: (props: GraphInputs) => void;
+  updatePreset: (props: GraphInputs) => void;
 }
 
 export function graph(mountNode, options) {
@@ -164,7 +165,7 @@ export function graph(mountNode, options) {
       renderCanvas();
     }
 
-    // Set color according to measure
+    // Set background colour
     const bgColor = mark.backgroundColor || BG_COLOURS[0];
     rootSelection.style('background-color', bgColor);
     document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
@@ -181,7 +182,6 @@ export function graph(mountNode, options) {
       // Add some properties to the groups
       .map((s, i) => {
         const swarmDef = mark.swarms[i];
-
         const existingCluster = clusters.find(c => c.value === swarmDef.value && c.label === swarmDef.value);
 
         const cluster = existingCluster || {
@@ -193,7 +193,7 @@ export function graph(mountNode, options) {
         //
         // Underscores are converted to spaces, and prevent wrapping
         //
-        const label = swarmDef.label.replace(/_/g, '\u00a0')
+        const label = (swarmDef.label).replace(/_/g, '\u00a0')
             .replace(/\(/g, '(\u202f')
             .replace(/\)/g, '\u202f)');
 
@@ -213,19 +213,25 @@ export function graph(mountNode, options) {
     clusters.forEach(d => (d.y += 40)); // Account for label height
 
     // Labels - using tspans to for multi-line labels
+    // Remove old ones to ensure the delayed appearance of the labels
+    svgSelection
+      .selectAll(`g.${styles.groupLabel}`)
+      .remove();
     const groupLabels = svgSelection
       .selectAll(`g.${styles.groupLabel}`)
       .data(clusters)
-      .join(enter =>
-        enter
+        .enter()
           .append('g')
           .attr('class', styles.groupLabel)
           .call(g => {
             g.append('text');
             g.append('path');
           })
-      )
       .call(label => label.select('text').call(tspans, d => d.groupLines));
+
+    const presetGroupLabels = svgSelection
+      .selectAll(`.preset`)
+      .remove();
 
     // Resolve cluster positions
     clusterSimulation.nodes(clusters).alpha(1);
@@ -273,7 +279,9 @@ export function graph(mountNode, options) {
       .start(clusters.length * 2);
 
     // Position the text
-    groupLabels.select('text').attr('transform', d => `translate(${d.label.x}, ${d.label.y})`);
+    groupLabels.select('text')
+      .attr('fill', d => d.color === '#000000' ? '#FFFFFF' : d.color)
+      .attr('transform', d => `translate(${d.label.x}, ${d.label.y})`);
 
     // Draw the arc
     groupLabels.select('path').attr('d', d => {
@@ -295,6 +303,180 @@ export function graph(mountNode, options) {
     updateCanvas(clusters);
   };
 
+  const updatePreset = async (props: GraphInputs) => {
+    const { mark } = props;
+    const preset = (mark as any).preset;
+    if (!mark || deepEqual(props, prevProps)) {
+      return;
+    }
+    prevProps = props;
+
+    dotSpacing = props.dotSpacing;
+    dotRadius = props.dotRadius;
+
+    if (width !== props.width || height !== props.height || align !== mark.align) {
+      width = props.width;
+      height = props.height;
+      align = mark.align;
+      clusterSimulation = getClusterSimulation(align);
+      scaleCanvas(canvasEl, canvasCtx, width, height);
+      renderCanvas();
+    }
+
+    // Set color according to measure
+    const bgColor = mark.backgroundColor || BG_COLOURS[0];
+    rootSelection.style('background-color', bgColor);
+    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
+
+    // Calculate and layout swarms
+    let swarms: any[] = [];
+    let labelPoints = [];
+
+    const svg = await fetch(`/shapes/${(mark as any).preset}.svg`).then(r => r.text());
+    const matches = svg.match(/cx="[+-]?([0-9]*[.])?[0-9]+" cy="[+-]?([0-9]*[.])?[0-9]+"/g);
+    const points = matches?.map(m => m.split('"')).map(m => [
+      parseFloat(m[1]) * 10, // + (Math.random() * 2 - 1),
+      parseFloat(m[3]) * 10, // + (Math.random() * 2 - 1)
+    ]) as any;
+
+    swarms = [{
+      size: 240,
+      points,
+    }];
+
+    clusters = swarms
+      // Add some properties to the groups
+      .map((s, i) => {
+        const swarmDef = mark.swarms ? mark.swarms[i] : ({} as any);
+        const existingCluster = clusters.find(c => c.value === swarmDef.value && c.label === swarmDef.value);
+
+        const cluster = existingCluster || {
+          ...swarmDef,
+          x: width / 2,
+          y: height / 2
+        };
+
+        return {
+          ...cluster,
+          swarm: s,
+          color: swarmDef.color || '#fff',
+          shape: swarmDef.shape || 'circle',
+          r: s.size / 2,
+          dotR: dotRadius || 1,
+          value: +swarmDef.value,
+          groupLines: wordwrap('', 10)
+        };
+      });
+
+      let labelList: string[] = [];
+      if (preset === 'australiadots') {
+        labelList = ['Australia'];
+      } else if (preset === 'statesdotspop') {
+        labelList = [
+          'NSW',
+          'QLD',
+          'TAS',
+          'ACT',
+          'VIC',
+          'SA',
+          'WA',
+          'NT',
+        ];
+      };
+
+    const labels = svg.match(/x="[+-]?([0-9]*[.])?[0-9]+" y="[+-]?([0-9]*[.])?[0-9]+"/g);
+    labelPoints = labels?.map(m => m.split('"')).map((m, i) => [
+      parseFloat(m[1]) * 10 + (width / 2 - margin * 2 - 60), // Magic numbers :S
+      parseFloat(m[3]) * 10 + (height / 2 - margin * 2 - 80),
+      labelList[i],
+    ]) as any;
+
+    // Basic fix for labels going off top of screen on small mobiles
+    clusters.forEach(d => (d.y += 40)); // Account for label height
+
+    //
+    // Remove all labels
+    //
+    const groupLabels = svgSelection
+      .selectAll(`g.${styles.groupLabel}`)
+      .remove();
+    const presetGroupLabels = svgSelection
+      .selectAll(`.preset`)
+      .remove();
+
+    if (labelPoints?.length) {
+      const presetGroupLabels = svgSelection
+        .selectAll(`g.${styles.presetLabel}`)
+        .data(labelPoints)
+        .enter()
+        .append('g')
+        .attr('class', `${styles.presetLabel} preset`)
+        .call(g => {
+          g.append('text')
+          .attr('fill', d => '#FFFFFF')
+          .attr('transform', d => `translate(${d[0]}, ${d[1]})`)
+          .text(d => d[2]);
+
+          // Draw the arc
+          g.append('path')
+          .attr('d', d => {
+            let ctx = path();
+            const x = d[0] - 5;
+            const y = d[1] + 20;
+            const r = 2;
+            let rad = 5;
+            ctx.moveTo((r + 5) * Math.cos(rad) + x, (r + 10) * Math.sin(rad) + y);
+            ctx.lineTo(r * Math.cos(rad) + x, r * Math.sin(rad) + y);
+            return ctx.toString();
+          });
+        });
+
+    // } else {
+    //   const presetGroupLabels = svgSelection
+    //     .selectAll(`.preset`)
+    //     .remove();
+    }
+
+    // Resolve cluster positions
+    clusterSimulation.nodes(clusters).alpha(1);
+
+    while (clusterSimulation.alpha() > clusterSimulation.alphaMin()) {
+      clusterSimulation.tick();
+
+      // Keep it in the bounds.
+      clusters.forEach(d => {
+        const cappedR = Math.min(d.r, width / 2 - margin * 2, height / 2 - margin * 2);
+
+        d.x = Math.min(width - margin * 2 - cappedR, Math.max(margin + cappedR, d.x));
+        d.y = Math.min(height - margin * 2 - cappedR, Math.max(margin + cappedR + 40, d.y));
+      });
+    }
+
+    // Setup objects for the label positioner to use
+    clusters.forEach(d => {
+      d.label = {
+        x: d.x,
+        y: d.y - d.r - 3 - 17 * d.groupLines.length
+      };
+      d.anchor = {
+        x: d.x,
+        y: d.y,
+        r: d.r + 20 // Label rotation is jittery
+      };
+    });
+
+    // Calculate label positions
+    labeler()
+      .label(clusters.map(d => d.label))
+      .anchor(clusters.map(d => d.anchor))
+      .width(width - margin * 2)
+      .height(height - margin * 2)
+      .start(clusters.length * 2);
+
+    // Update the swarms
+    updateCanvas(clusters);
+  };
+
   function getClusterSimulation(align) {
     const mqLargeCenterX = align === 'left' ? (width / 3) * 2 : align === 'right' ? width / 3 : width / 2;
 
@@ -311,5 +493,5 @@ export function graph(mountNode, options) {
       .stop();
   }
 
-  return { update };
+  return { update, updatePreset };
 }

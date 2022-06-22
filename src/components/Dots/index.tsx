@@ -3,6 +3,7 @@ import React from 'react';
 import '../../poly';
 import { Mark } from './types';
 import { graph, Graph, GraphInputs } from './graph';
+// import { graph, Graph, GraphInputs } from './presetGraph';
 
 import styles from './styles.scss';
 
@@ -23,7 +24,11 @@ export default class Dots extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.graph?.update(nextProps);
+    if ((nextProps as any)?.mark?.preset) {
+      this.graph?.updatePreset(nextProps);
+    } else {
+      this.graph?.update(nextProps);
+    }
   }
 
   shouldComponentUpdate() {
@@ -35,7 +40,11 @@ export default class Dots extends React.Component {
       return;
     }
     this.graph = graph(this.rootRef.current, {});
-    this.graph.update(this.props);
+    if ((this.props as any)?.mark?.preset) {
+      this.graph.updatePreset(this.props);
+    } else {
+      this.graph.update(this.props);
+    }
   }
 
   render() {

@@ -68,7 +68,7 @@ const App: React.FC<AppProps> = ({
         mark={mark}
         width={dimensions[0]}
         height={dimensions[1]}
-        dotLabel={mark?.dotLabel}
+        dotLabel={dotLabel}
         dotRadius={minDimensionBasedScaling(mark?.dotRadius || 1)}
         dotSpacing={minDimensionBasedScaling(mark?.dotRadius || 1) * 1.25 + 0.5}
       />

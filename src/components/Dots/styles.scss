@@ -1,3 +1,19 @@
+@font-face {
+    font-family: ABCSans;
+    font-weight: 400;
+    font-style: normal;
+    src: url(//res.abc.net.au/fonts/abcsansnova/20211112/abcsansnova-regular.woff2) format("woff2"),url(//res.abc.net.au/fonts/abcsansnova/20211112/abcsansnova-regular.woff) format("woff");
+    font-display: swap
+}
+
+@font-face {
+    font-family: ABCSans;
+    font-weight: 700;
+    font-style: normal;
+    src: url(//res.abc.net.au/fonts/abcsansnova/20211112/abcsansnova-bold.woff2) format("woff2"),url(//res.abc.net.au/fonts/abcsansnova/20211112/abcsansnova-bold.woff) format("woff");
+    font-display: swap
+}
+
 .dots {
   position: relative;
   z-index: 1;
@@ -17,18 +33,30 @@
     height: 100vh;
   }
 
-  .group-label text {
+  .group-label text,
+  .presetLabel text {
     font-size: 15px;
-    fill: #fff;
+    font-family: ABCSans, sans-serif;
+    font-weight: 700;
     text-anchor: middle;
+    animation: fadeIn 0.6s;
   }
-
-  .group-label path {
+  
+  .group-label path,
+  .presetLabel path {
     fill: none;
     stroke: rgba(255, 255, 255, 0.6);
     stroke-width: 1;
+    animation: fadeIn 0.6s;
   }
 }
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  98% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 
 .dotLabel {
   transform: translate(-50%, 0);
