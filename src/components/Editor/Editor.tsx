@@ -18,7 +18,7 @@ const DEFAULT_SWARM = {
 
 const SNAPSHOTS_LOCALSTORAGE_KEY = 'swarmyteller-editor-snapshots';
 const DEFAULT_PROPS = {
-  dotRadius: 2,
+  dotRadius: 4,
   backgroundColor: BG_COLOURS[0],
   swarms: [DEFAULT_SWARM],
 };

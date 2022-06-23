@@ -362,7 +362,7 @@ export function graph(mountNode, options) {
       .selectAll(`.preset`)
       .remove();
 
-    const offsetX = MQ_LARGE.matches ? mqLargeOffsetX(width, align) : 0;
+    const offsetX = MQ_LARGE.matches ? mqLargeOffsetX(width, align, margin) : 0;
 
     if (labelPoints?.length) {
       const presetGroupLabels = svgSelection
@@ -415,7 +415,7 @@ export function graph(mountNode, options) {
     // const mqLargeCenterX = alignmentOffset(width, align);
 
     return forceSimulation()
-      .force('gravity', forceCenter(MQ_LARGE.matches ? mqLargeCenterX(width, align) : width / 2, height / 2))
+      .force('gravity', forceCenter(MQ_LARGE.matches ? mqLargeCenterX(width, align, margin) : width / 2, height / 2))
       .force(
         'attract',
         forceManyBody()
@@ -430,21 +430,21 @@ export function graph(mountNode, options) {
   return { update, updatePreset };
 }
 
-const mqLargeOffsetX = (width, align) => {
+const mqLargeOffsetX = (width, align, margin) => {
   if (align === 'left') {
-    return -width / 6;
+    return -1 * (width / 6 + 2 * margin);
   } else if (align === 'right') {
-    return width / 6;
+    return width / 6 + 2 * margin;
   } else {
     return 0;
   }
 }
 
-const mqLargeCenterX = (width, align) => {
+const mqLargeCenterX = (width, align, margin) => {
   if (align === 'left') {
-    return width / 3 * 2;
+    return 2 * width / 3 + 2 * margin;
   } else if (align === 'right') {
-    return width / 3;
+    return width / 3 - 2 * margin;
   } else {
     return width / 2;
   }

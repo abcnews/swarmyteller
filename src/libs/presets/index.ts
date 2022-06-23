@@ -6,19 +6,19 @@ export default async function getPreset(preset: string, width: number, height: n
 
     const dots = svg.match(/cx="[+-]?([0-9]*[.])?[0-9]+" cy="[+-]?([0-9]*[.])?[0-9]+"/g);
     const points = dots?.map(m => m.split('"')).map(m => [
-      parseFloat(m[1]) * 10, // + (Math.random() * 2 - 1),
-      parseFloat(m[3]) * 10, // + (Math.random() * 2 - 1)
+      parseFloat(m[1]) * 15, // + (Math.random() * 2 - 1),
+      parseFloat(m[3]) * 15, // + (Math.random() * 2 - 1)
     ]);
 
     const labels = svg.match(/x="[+-]?([0-9]*[.])?[0-9]+" y="[+-]?([0-9]*[.])?[0-9]+"/g);
     const labelPoints = labels?.map(m => m.split('"')).map((m, i) => [
-      parseFloat(m[1]) * 10 + (width / 2 - margin * 2 - 60), // Magic numbers :S
-      parseFloat(m[3]) * 10 + (height / 2 - margin * 2 - 80),
+      parseFloat(m[1]) * 15 + (width / 2 - margin * 2 - 110), // Magic numbers :S
+      parseFloat(m[3]) * 15 + (height / 2 - margin * 2 - 130),
       labelList[i],
     ]) as any;
 
     const swarms = [{
-      size: 240,
+      size: 24 * 15,
       points,
     }];
 
