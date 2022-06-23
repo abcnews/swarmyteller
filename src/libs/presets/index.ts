@@ -2,7 +2,6 @@ import { PRESETS } from '../../constants';
 
 export default async function getPreset(preset: string, width: number, height: number, margin: number) {
     const { labelList, shapeUrl } = PRESETS[preset];
-
     const svg = await fetch(shapeUrl).then(r => r.text());
 
     const dots = svg.match(/cx="[+-]?([0-9]*[.])?[0-9]+" cy="[+-]?([0-9]*[.])?[0-9]+"/g);

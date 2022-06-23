@@ -1,5 +1,7 @@
 declare var  __webpack_public_path__: string; 
 
+export const DEFAULT_ALIGNMENT = 'left';
+
 export const BG_COLOURS = ['#0D659C', '#9D1C67', '#625095', '#006B75'];
 export const DOT_COLOURS = ['#FFFFFF', '#FFD782', '#000000'];
 export const SHAPES = [

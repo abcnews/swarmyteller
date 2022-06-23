@@ -8,7 +8,7 @@ import { GithubPicker } from 'react-color';
 import { InlineLoading, Select, SelectItem, CodeSnippet, Button, Tile, Tabs, TabList, Tab, TabPanels, TabPanel, TextInput, NumberInput } from '@carbon/react';
 import { Add, Download, TrashCan, Copy, TagImport } from '@carbon/icons-react';
 
-import { BG_COLOURS, DOT_COLOURS, SHAPES } from '../../constants';
+import { BG_COLOURS, DOT_COLOURS, SHAPES, DEFAULT_ALIGNMENT } from '../../constants';
 
 const DEFAULT_SWARM = {
   label: '',
@@ -27,6 +27,7 @@ const Editor = () => {
   const [snapshots, setSnapshots] = useState(JSON.parse(localStorage.getItem(SNAPSHOTS_LOCALSTORAGE_KEY) || '{}'));
   const [dotRadius, setDotRadius] = useState(DEFAULT_PROPS.dotRadius);
   const [backgroundColor, setBackgroundColor] = useState(DEFAULT_PROPS.backgroundColor);
+  const [align, setAlign] = useState('');
   const [swarms, setSwarms] = useState([
     { ...DEFAULT_SWARM },
   ]);
@@ -37,6 +38,9 @@ const Editor = () => {
       setDotRadius(state.dotRadius || DEFAULT_PROPS.dotRadius);
       setBackgroundColor(state.backgroundColor || DEFAULT_PROPS.backgroundColor);
       setSwarms(state.swarms || DEFAULT_PROPS.swarms);
+      if (state.align) {
+        setAlign(state.align);
+      }
       return state;
     } catch (e) {
       console.log(e);
@@ -64,7 +68,8 @@ const Editor = () => {
   const stateEncoded = encode({
     dotRadius,
     backgroundColor, 
-    swarms
+    swarms,
+    ...(align && { align })
   });
 
   useEffect(() => {
@@ -105,7 +110,7 @@ const Editor = () => {
     const fallbackAutomationURL =
       `https://abcnews-cors-anywhere.herokuapp.com/https://fallback-automation.drzax.now.sh/api?url=${encodeURIComponent(
         String(document.location.href).split('?')[0] + `?state=${stateEncoded}`
-      )}&width=600&selector=.`;
+      )}&width=600&selector=canvas`;
 
     const res = await fetch(fallbackAutomationURL);
     const blob = await res.blob();
@@ -178,10 +183,25 @@ const Editor = () => {
           </TabList>
           <TabPanels>
             <TabPanel style={{ maxHeight: height - 50, overflow: 'auto' }}>
+                <Select
+                 style={{ marginBottom: '0.5rem' }}
+                 labelText="Align Text (not visible in editor)"
+                 size="md"
+                 value={align}
+                 onChange={e => setAlign(e.target.value)}
+                >
+                  <SelectItem text={`Default (${DEFAULT_ALIGNMENT})`} value={""} />
+                  <SelectItem text={"Left"} value={"left"} />
+                  <SelectItem text={"Right"} value={"right"} />
+                  <SelectItem text={"Center"} value={"center"} />
+                </Select>
                 <NumberInput
                   label="Dot Radius"
                   value={dotRadius}
-                  onChange={e => setDotRadius(e.target.value)}
+                  step={1}
+                  min={1}
+                  max={10}
+                  onChange={e => setDotRadius(e.imaginaryTarget.value)}
                  />
                 <ColorPicker
                   labelText="Background Color"
@@ -211,7 +231,10 @@ const Editor = () => {
                     <NumberInput
                       label="Dots"
                       value={s.value}
-                      onChange={e => updateSwarmProp(i, 'value', e.target.value)}
+                      step={100}
+                      min={1}
+                      max={5000}
+                      onChange={e => updateSwarmProp(i, 'value', e.imaginaryTarget.value)}
                      />
                      <Select
                       labelText="Shape"

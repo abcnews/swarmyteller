@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import type { PanelDefinition } from '@abcnews/scrollyteller';
 import Scrollyteller from '@abcnews/scrollyteller';
-import { decode } from '@abcnews/base-36-props';
-import Dots from '../Dots';
 import scrollytellerPanelStyles from '@abcnews/scrollyteller/src/Panel/index.module.scss';
+import { decode } from '@abcnews/base-36-props';
+
+import Dots from '../Dots';
+import { Mark } from '../Dots/types';
+import { DEFAULT_ALIGNMENT } from '../../constants';
 import styles from './styles.scss';
 
-export type PanelConfig = {
-  measure: string;
-  comparison: string;
-  align: string | undefined;
-};
-
 export type AppProps = {
-  panels: PanelDefinition<PanelConfig>[];
-  dataURL?: string;
+  panels: PanelDefinition<any>[];
+  align?: string;
   dotLabel?: string;
   dotMinRadius?: number;
 };
@@ -35,12 +32,19 @@ type OdysseyAPI = {
   };
 };
 
+const setPanelAlignment = (panel) => {
+  const markState = panel?.data?.state && decode(panel.data.state);
+  panel.align = markState?.align || DEFAULT_ALIGNMENT;
+  return panel;
+}
+
 const App: React.FC<AppProps> = ({
   panels,
   dotLabel,
+  align,
   dotMinRadius = 1
 }) => {
-  const [mark, setMark] = useState<PanelConfig>();
+  const [mark, setMark] = useState<Mark>();
   const [dimensions, setDimensions] = useState([window.innerWidth, window.innerHeight]);
   const minDimension = Math.min.apply(null, dimensions);
   const minDimensionBasedScaling = value => value * (minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1);
@@ -58,11 +62,19 @@ const App: React.FC<AppProps> = ({
     return () => unsubscribe(updateDimensions);
   }, [dimensions]);
 
+  const onMarker= m => {
+    if (m?.state) {
+      const mark = decode<Mark>(m.state);
+      mark.align = align || mark.align;
+      setMark(mark);
+    }
+  };
+
   return panels && dimensions ? (
     <Scrollyteller
-      panels={panels}
+      panels={panels.map(setPanelAlignment)}
       panelClassName={`${scrollytellerPanelStyles.base} ${styles.panel}`}
-      onMarker={m => m?.state && setMark(decode(m.state))}
+      onMarker={onMarker}
     >
       <Dots
         mark={mark}

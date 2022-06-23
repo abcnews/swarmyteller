@@ -34,8 +34,8 @@ export interface Swarm {
 }
 
 export interface Mark {
-  align?: string;
   backgroundColor?: string;
   dotRadius?: number;
   swarms: Swarm[];
+  align?: string,
 }

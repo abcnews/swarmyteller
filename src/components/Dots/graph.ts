@@ -13,7 +13,7 @@ import scaleCanvas from '../../libs/scale-canvas';
 import swarm from '../../libs/swarm';
 import getPreset from '../../libs/presets';
 import { easeCubicInOut, hexToRgbA, tspans, wordwrap } from '../../utils';
-import { SHAPE_IMAGE_URLS, SHAPES, BG_COLOURS, MQ_LARGE } from '../../constants';
+import { DEFAULT_ALIGNMENT, SHAPE_IMAGE_URLS, SHAPES, BG_COLOURS, MQ_LARGE } from '../../constants';
 
 import { Mark, Dot, CanvasDot, Cluster } from './types';
 
@@ -22,7 +22,7 @@ export interface GraphInputs {
   dotSpacing: number,
   dotRadius: number,
   height: number,
-  width: number
+  width: number,
 }
 
 export interface Graph {
@@ -160,7 +160,7 @@ export function graph(mountNode, options) {
     if (width !== props.width || height !== props.height || align !== mark.align) {
       width = props.width;
       height = props.height;
-      align = mark.align;
+      align = mark.align || DEFAULT_ALIGNMENT;
       clusterSimulation = getClusterSimulation(align);
       scaleCanvas(canvasEl, canvasCtx, width, height);
       renderCanvas();
@@ -311,7 +311,7 @@ export function graph(mountNode, options) {
     if (width !== props.width || height !== props.height || align !== mark.align) {
       width = props.width;
       height = props.height;
-      align = mark.align;
+      align = mark.align || DEFAULT_ALIGNMENT;
       clusterSimulation = getClusterSimulation(align);
       scaleCanvas(canvasEl, canvasCtx, width, height);
       renderCanvas();
@@ -362,6 +362,8 @@ export function graph(mountNode, options) {
       .selectAll(`.preset`)
       .remove();
 
+    const offsetX = MQ_LARGE.matches ? mqLargeOffsetX(width, align) : 0;
+
     if (labelPoints?.length) {
       const presetGroupLabels = svgSelection
         .selectAll(`g.${styles.presetLabel}`)
@@ -372,14 +374,14 @@ export function graph(mountNode, options) {
         .call(g => {
           g.append('text')
           .attr('fill', d => '#FFFFFF')
-          .attr('transform', d => `translate(${d[0]}, ${d[1]})`)
+          .attr('transform', d => `translate(${d[0] - offsetX}, ${d[1]})`)
           .text(d => d[2]);
 
           // Draw the arc
           g.append('path')
           .attr('d', d => {
             let ctx = path();
-            const x = d[0] - 5;
+            const x = d[0] - 5 - offsetX;
             const y = d[1] + 20;
             const r = 2;
             let rad = 5;
@@ -410,10 +412,10 @@ export function graph(mountNode, options) {
   };
 
   function getClusterSimulation(align) {
-    const mqLargeCenterX = align === 'left' ? (width / 3) * 2 : align === 'right' ? width / 3 : width / 2;
+    // const mqLargeCenterX = alignmentOffset(width, align);
 
     return forceSimulation()
-      .force('gravity', forceCenter(MQ_LARGE.matches ? mqLargeCenterX : width / 2, height / 2))
+      .force('gravity', forceCenter(MQ_LARGE.matches ? mqLargeCenterX(width, align) : width / 2, height / 2))
       .force(
         'attract',
         forceManyBody()
@@ -426,4 +428,24 @@ export function graph(mountNode, options) {
   }
 
   return { update, updatePreset };
+}
+
+const mqLargeOffsetX = (width, align) => {
+  if (align === 'left') {
+    return -width / 6;
+  } else if (align === 'right') {
+    return width / 6;
+  } else {
+    return 0;
+  }
+}
+
+const mqLargeCenterX = (width, align) => {
+  if (align === 'left') {
+    return width / 3 * 2;
+  } else if (align === 'right') {
+    return width / 3;
+  } else {
+    return width / 2;
+  }
 }

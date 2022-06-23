@@ -11,6 +11,13 @@ import Scrollyteller from '@abcnews/scrollyteller';
 import type { ScrollytellerDefinition } from '@abcnews/scrollyteller';
 
 import Dots from './components/Dots';
+import { DEFAULT_ALIGNMENT } from './constants';
+
+const setPanelAlignment = (panel) => {
+  const markState = panel?.data?.state && decode(panel.data.state);
+  panel.align = markState?.align || DEFAULT_ALIGNMENT;
+  return panel;
+}
 
 const Block: React.FC<ScrollytellerDefinition<any>> = ({
   panels,
@@ -21,17 +28,23 @@ const Block: React.FC<ScrollytellerDefinition<any>> = ({
   const minDimension = Math.min.apply(null, dimensions);
   const minDimensionBasedScaling = value => value * (minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1);
 
+  const onMarker = (m) => {
+    if (m.state) {
+      setMark(decode(m.state))
+    }
+  };
+
   return (
     <Scrollyteller
-      panels={panels}
+      panels={panels.map(setPanelAlignment)}
       {...config}
-      onMarker={m => m?.state && setMark(decode(m.state))}
+      onMarker={onMarker}
     >
       <Dots
         mark={mark}
         width={dimensions[0]}
         height={dimensions[1]}
-        dotLabel={mark?.dotLabel}
+        align={config.align}
         dotRadius={minDimensionBasedScaling(mark?.dotRadius || 1)}
         dotSpacing={minDimensionBasedScaling(mark?.dotRadius || 1) * 1.25 + 0.5}
       />
