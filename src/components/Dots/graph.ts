@@ -11,6 +11,7 @@ import '../../poly';
 import { labeler } from '../../libs/labeler';
 import scaleCanvas from '../../libs/scale-canvas';
 import swarm from '../../libs/swarm';
+import getPreset from '../../libs/presets';
 import { easeCubicInOut, hexToRgbA, tspans, wordwrap } from '../../utils';
 import { SHAPE_IMAGE_URLS, SHAPES, BG_COLOURS, MQ_LARGE } from '../../constants';
 
@@ -287,13 +288,6 @@ export function graph(mountNode, options) {
     groupLabels.select('path').attr('d', d => {
       let ctx = path();
       let rad = Math.atan2(d.label.y - d.y, d.label.x - d.x);
-      // ctx.arc(
-      //   d.anchor.x,
-      //   d.anchor.y,
-      //   d.r,
-      //   rad - deg2rad(30),
-      //   rad + deg2rad(30)
-      // );
       ctx.moveTo((d.r + 15) * Math.cos(rad) + d.x, (d.r + 10) * Math.sin(rad) + d.y);
       ctx.lineTo(d.r * Math.cos(rad) + d.x, d.r * Math.sin(rad) + d.y);
       return ctx.toString();
@@ -328,21 +322,8 @@ export function graph(mountNode, options) {
     rootSelection.style('background-color', bgColor);
     document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
 
-    // Calculate and layout swarms
-    let swarms: any[] = [];
-    let labelPoints = [];
-
-    const svg = await fetch(`/shapes/${(mark as any).preset}.svg`).then(r => r.text());
-    const matches = svg.match(/cx="[+-]?([0-9]*[.])?[0-9]+" cy="[+-]?([0-9]*[.])?[0-9]+"/g);
-    const points = matches?.map(m => m.split('"')).map(m => [
-      parseFloat(m[1]) * 10, // + (Math.random() * 2 - 1),
-      parseFloat(m[3]) * 10, // + (Math.random() * 2 - 1)
-    ]) as any;
-
-    swarms = [{
-      size: 240,
-      points,
-    }];
+    // Lookup preset from SVG file
+    const { swarms, labelPoints } = await getPreset(preset, width, height, margin);
 
     clusters = swarms
       // Add some properties to the groups
@@ -367,29 +348,6 @@ export function graph(mountNode, options) {
           groupLines: wordwrap('', 10)
         };
       });
-
-      let labelList: string[] = [];
-      if (preset === 'australiadots') {
-        labelList = ['Australia'];
-      } else if (preset === 'statesdotspop') {
-        labelList = [
-          'NSW',
-          'QLD',
-          'TAS',
-          'ACT',
-          'VIC',
-          'SA',
-          'WA',
-          'NT',
-        ];
-      };
-
-    const labels = svg.match(/x="[+-]?([0-9]*[.])?[0-9]+" y="[+-]?([0-9]*[.])?[0-9]+"/g);
-    labelPoints = labels?.map(m => m.split('"')).map((m, i) => [
-      parseFloat(m[1]) * 10 + (width / 2 - margin * 2 - 60), // Magic numbers :S
-      parseFloat(m[3]) * 10 + (height / 2 - margin * 2 - 80),
-      labelList[i],
-    ]) as any;
 
     // Basic fix for labels going off top of screen on small mobiles
     clusters.forEach(d => (d.y += 40)); // Account for label height
@@ -430,11 +388,6 @@ export function graph(mountNode, options) {
             return ctx.toString();
           });
         });
-
-    // } else {
-    //   const presetGroupLabels = svgSelection
-    //     .selectAll(`.preset`)
-    //     .remove();
     }
 
     // Resolve cluster positions
@@ -451,27 +404,6 @@ export function graph(mountNode, options) {
         d.y = Math.min(height - margin * 2 - cappedR, Math.max(margin + cappedR + 40, d.y));
       });
     }
-
-    // Setup objects for the label positioner to use
-    clusters.forEach(d => {
-      d.label = {
-        x: d.x,
-        y: d.y - d.r - 3 - 17 * d.groupLines.length
-      };
-      d.anchor = {
-        x: d.x,
-        y: d.y,
-        r: d.r + 20 // Label rotation is jittery
-      };
-    });
-
-    // Calculate label positions
-    labeler()
-      .label(clusters.map(d => d.label))
-      .anchor(clusters.map(d => d.anchor))
-      .width(width - margin * 2)
-      .height(height - margin * 2)
-      .start(clusters.length * 2);
 
     // Update the swarms
     updateCanvas(clusters);
