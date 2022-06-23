@@ -7,7 +7,7 @@ import type { ScrollytellerDefinition } from '@abcnews/scrollyteller';
 import { loadScrollyteller } from '@abcnews/scrollyteller';
 import React from 'react';
 import { render } from 'react-dom';
-import type { AppProps, PanelConfig } from './components/App';
+import type { AppProps } from './components/App';
 import App from './components/App';
 
 whenOdysseyLoaded.then(() => {
@@ -22,7 +22,7 @@ whenOdysseyLoaded.then(() => {
   });
 
   // Get scrollteller config, including `align` as a data prop
-  const scrollytellerDefinition: ScrollytellerDefinition<PanelConfig> = loadScrollyteller('swarmyteller', 'u-full');
+  const scrollytellerDefinition: ScrollytellerDefinition<any> = loadScrollyteller('swarmyteller', 'u-full');
 
   scrollytellerDefinition.panels.forEach(panel => {
     panel.data.align = panel.align;
