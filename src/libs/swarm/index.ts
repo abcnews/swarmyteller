@@ -81,7 +81,7 @@ export default (config: Config): SwarmPromise => {
   const { imageURL, numPoints, spacing, useWorkers } = config;
   const id = btoa(String([imageURL, numPoints, spacing]));
 
-  if (!useWorkers && workers.length === 0) {
+  if (useWorkers && workers.length === 0) {
     workers = [...Array(NUM_WORKERS)].map(() => {
       const worker = new Worker(new URL('./index.worker.ts', import.meta.url));
       worker.addEventListener('message', onTaskDone);
@@ -109,7 +109,7 @@ export default (config: Config): SwarmPromise => {
 
         taskCache[id]._resolve = resolve;
 
-        if (!useWorkers) {
+        if (useWorkers) {
           getNextWorker().postMessage(message, [message.data.pixelData.buffer]);
         } else {
           process(message).then(e => onTaskDone({ data: e } as MessageEvent<MessageFromWorker>));
