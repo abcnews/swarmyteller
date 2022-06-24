@@ -4,13 +4,11 @@ export default async function getPreset(preset: string, width: number, height: n
     const { labelList, shapeUrl } = PRESETS[preset];
     const svg = await fetch(shapeUrl).then(r => r.text());
 
-    const distanceFromOrigin = (x, y) => {
-      const dx = (24 * 15 / 2) - x;
-      const dy = (24 * 15 / 2) - y;
-      console.log(dx, dy);
-      return { dx, dy };
-      // return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
-    };
+    // const distanceFromOrigin = (x, y) => {
+    //   const dx = (24 * 15 / 2) - x;
+    //   const dy = (24 * 15 / 2) - y;
+    //   return { dx, dy };
+    // };
 
     const dots = svg.match(/cx="[+-]?([0-9]*[.])?[0-9]+" cy="[+-]?([0-9]*[.])?[0-9]+"/g);
     const points = dots?.map(m => m.split('"')).map(m => [
@@ -22,7 +20,6 @@ export default async function getPreset(preset: string, width: number, height: n
       // p[0] + distanceFromOrigin(p[0], p[1]).dx * 0.1 * Math.random(),
       // p[1] + distanceFromOrigin(p[0], p[1]).dy * 0.1 * Math.random(),
     ]);
-
 
 
     const labels = svg.match(/x="[+-]?([0-9]*[.])?[0-9]+" y="[+-]?([0-9]*[.])?[0-9]+"/g);

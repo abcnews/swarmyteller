@@ -51,6 +51,7 @@
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="3.85185185" cy="10" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.1481481" cy="8.66666667" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.1481481" cy="14" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.1481481" cy="15.3333333" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="5.33333333" cy="10" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="6.81481481" cy="15.3333333" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="6.81481481" cy="10" rx="1" ry="1"></ellipse>
@@ -100,6 +101,9 @@
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.6666667" cy="15.3333333" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="15.7037037" cy="15.3333333" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.6666667" cy="19.3333333" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.6296296" cy="11.3333333" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.1481481" cy="11.3333333" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.6296296" cy="11.3333333" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.6296296" cy="11.3333333" rx="1" ry="1"></ellipse>
         <rect id="Rectangle" fill="#000000" x="13" y="0" width="1" height="1"></rect>
     </g>
