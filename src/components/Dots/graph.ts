@@ -401,7 +401,6 @@ export function graph(mountNode, options) {
       // Keep it in the bounds.
       clusters.forEach(d => {
         const cappedR = Math.min(d.r, width / 2 - margin * 2, height / 2 - margin * 2);
-
         d.x = Math.min(width - margin * 2 - cappedR, Math.max(margin + cappedR, d.x));
         d.y = Math.min(height - margin * 2 - cappedR, Math.max(margin + cappedR + 40, d.y));
       });
