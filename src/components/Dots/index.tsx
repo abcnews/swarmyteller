@@ -10,7 +10,7 @@ import styles from './styles.scss';
 interface Props extends GraphInputs {
   dotLabel: string;
   marks: Mark[];
-  useWorkers?: boolean;
+  useWorkers?: boolean,
 }
 
 export default class Dots extends React.Component {

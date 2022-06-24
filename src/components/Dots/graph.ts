@@ -45,7 +45,7 @@ export function graph(mountNode, options) {
   let removedCanvasDots: CanvasDot[] = [];
   let prevProps: GraphInputs | null = null;
 
-  const { margin } = options;
+  const { margin, useWorkers } = options;
 
   let width;
   let height;
