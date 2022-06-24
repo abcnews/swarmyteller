@@ -33,7 +33,8 @@ export interface Graph {
 export function graph(mountNode, options) {
   options = Object.assign(
     {
-      margin: 20
+      margin: 20,
+      useWorkers: false,
     },
     options
   );
@@ -176,6 +177,7 @@ export function graph(mountNode, options) {
       imageURL: SHAPE_IMAGE_URLS[s.shape || 'circle'] || SHAPE_IMAGE_URLS.circle,
       numPoints: +s.value,
       spacing: dotSpacing || 3,
+      useWorkers,
     })));
 
     // New data
@@ -431,9 +433,9 @@ export function graph(mountNode, options) {
 
 const mqLargeOffsetX = (width, align, margin) => {
   if (align === 'left') {
-    return -1 * (width / 6 + 2 * margin);
+    return -1 * (width / 6 + 4 * margin);
   } else if (align === 'right') {
-    return width / 6 + 2 * margin;
+    return width / 6 + 4 * margin;
   } else {
     return 0;
   }
@@ -441,9 +443,9 @@ const mqLargeOffsetX = (width, align, margin) => {
 
 const mqLargeCenterX = (width, align, margin) => {
   if (align === 'left') {
-    return 2 * width / 3 + 2 * margin;
+    return 2 * width / 3 + 4 * margin;
   } else if (align === 'right') {
-    return width / 3 - 2 * margin;
+    return width / 3 - 4 * margin;
   } else {
     return width / 2;
   }

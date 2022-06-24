@@ -1,5 +1,6 @@
 import 'core-js/features/typed-array/slice';
 import type { Delaunay } from 'd3-delaunay';
+import { process } from './shared';
 
 export interface Swarm {
   points: Delaunay.Point[];
@@ -14,6 +15,7 @@ interface Config {
   imageURL: string;
   numPoints: number;
   spacing: number;
+  useWorkers?: boolean;
 }
 
 export interface MessageToWorker {
@@ -77,11 +79,12 @@ const getNextWorker = () => {
 
   return worker;
 };
+
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 
 export default (config: Config): SwarmPromise => {
-  const { imageURL, numPoints, spacing } = config;
+  const { imageURL, numPoints, spacing, useWorkers } = config;
   const id = btoa(String([imageURL, numPoints, spacing]));
 
   if (!taskCache[id]) {
@@ -103,7 +106,12 @@ export default (config: Config): SwarmPromise => {
         }
 
         taskCache[id]._resolve = resolve;
-        getNextWorker().postMessage(message, [message.data.pixelData.buffer]);
+
+        if (useWorkers) {
+          getNextWorker().postMessage(message, [message.data.pixelData.buffer]);
+        } else {
+          process(message).then(e => onTaskDone({ data: e } as MessageEvent<MessageFromWorker>));
+        }
       }
 
       pixelData = pixelDataCache[imageURL];
