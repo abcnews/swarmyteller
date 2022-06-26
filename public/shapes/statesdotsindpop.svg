@@ -60,46 +60,13 @@
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="9.25080386" cy="17.1428571" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="10.2508039" cy="16.1428571" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="9.25080386" cy="16.1428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.4421222" cy="14.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.4421222" cy="12.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.6639871" cy="13.7714286" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.9983923" cy="14.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.2202572" cy="14.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.6639871" cy="12.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.4421222" cy="11.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.6639871" cy="11.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.4421222" cy="10.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="14.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="14.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.9983923" cy="13.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.2202572" cy="13.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="13.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="13.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="16.7765273" cy="14.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="16.7765273" cy="13.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.9983923" cy="12.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.2202572" cy="12.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="12.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="12.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.9983923" cy="11.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.2202572" cy="11.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="11.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="11.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.9983923" cy="10.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.2202572" cy="10.8" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="10.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="10.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="16.7765273" cy="12.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="16.7765273" cy="11.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="16.7765273" cy="10.7428571" rx="1" ry="1"></ellipse>
-        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.6639871" cy="10.7428571" rx="1" ry="1"></ellipse>
         <rect id="Rectangle" fill="#000000" x="20" y="8" width="1" height="1"></rect>
         <rect id="Rectangle" fill="#000000" x="14" y="2" width="1" height="1"></rect>
         <rect id="Rectangle" fill="#000000" x="15" y="21" width="1" height="1"></rect>
         <rect id="Rectangle" fill="#000000" x="19" y="17" width="1" height="1"></rect>
-        <rect id="Rectangle" fill="#000000" x="10" y="14" width="1" height="1"></rect>
+        <rect id="Rectangle" fill="#000000" x="9" y="14" width="1" height="1"></rect>
         <rect id="Rectangle" fill="#000000" x="2" y="14" width="1" height="1"></rect>
-        <rect id="Rectangle" fill="#000000" x="1" y="5" width="1" height="1"></rect>
+        <rect id="Rectangle" fill="#000000" x="1" y="4" width="1" height="1"></rect>
         <rect id="Rectangle" fill="#000000" x="6" y="3" width="1" height="1"></rect>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="8.74919614" cy="7.34285714" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="7.52733119" cy="7.34285714" rx="1" ry="1"></ellipse>
@@ -110,5 +77,38 @@
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="6.30546624" cy="8.37142857" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="6.30546624" cy="6.31428571" rx="1" ry="1"></ellipse>
         <ellipse id="Oval" stroke="#000000" fill="#000000" cx="7.52733119" cy="5.28571429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.7754662" cy="14.8" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.7754662" cy="12.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.7754662" cy="13.7471429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.7754662" cy="14.8" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.7754662" cy="14.8" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.7754662" cy="12.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.7754662" cy="11.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.7754662" cy="11.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="22.7754662" cy="10.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.7765273" cy="14.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="14.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.7754662" cy="13.7471429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.7754662" cy="13.7471429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.7765273" cy="13.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="13.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.7754662" cy="12.7471429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.7754662" cy="12.7471429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.7765273" cy="12.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="12.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.7754662" cy="11.8" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.7754662" cy="11.8" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.7765273" cy="11.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="11.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="20.7754662" cy="10.7471429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="21.7754662" cy="10.7471429" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="19.7765273" cy="10.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="18.7765273" cy="10.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="13.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="14.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="12.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="11.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="17.7765273" cy="10.7428571" rx="1" ry="1"></ellipse>
+        <ellipse id="Oval" stroke="#000000" fill="#000000" cx="23.7754662" cy="10.7428571" rx="1" ry="1"></ellipse>
     </g>
 </svg>
