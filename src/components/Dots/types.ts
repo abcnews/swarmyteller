@@ -18,6 +18,7 @@ export interface Cluster extends Dot {
   label: any;
   anchor?: any;
 
+  hasLabel: boolean;
   swarm: any;
   shape: string;
   dotR: number;

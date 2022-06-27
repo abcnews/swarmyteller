@@ -208,6 +208,7 @@ export function graph(mountNode, options) {
           r: s.size / 2,
           dotR: dotRadius || 1,
           value: +swarmDef.value,
+          hasLabel: !!label,
           groupLines: wordwrap(label, 10)
         };
       });
@@ -222,7 +223,7 @@ export function graph(mountNode, options) {
       .remove();
     const groupLabels = svgSelection
       .selectAll(`g.${styles.groupLabel}`)
-      .data(clusters)
+      .data(clusters.filter(c => c.hasLabel))
         .enter()
           .append('g')
           .attr('class', styles.groupLabel)
@@ -369,7 +370,7 @@ export function graph(mountNode, options) {
     if (labelPoints?.length) {
       const presetGroupLabels = svgSelection
         .selectAll(`g.${styles.presetLabel}`)
-        .data(labelPoints)
+        .data(labelPoints.filter(d => !!d[2]))
         .enter()
         .append('g')
         .attr('class', `${styles.presetLabel} preset`)
