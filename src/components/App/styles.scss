@@ -62,7 +62,7 @@
 // Make the coloured background cover the whole page and make title white
 :global(.Header) {
   background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
-  margin-bottom: 30px;
+  margin-bottom: 30px !important;
 
   & a {
     color: #94E9FF;

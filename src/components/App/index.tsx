@@ -50,10 +50,15 @@ const App: React.FC<AppProps> = ({
   const minDimension = Math.min.apply(null, dimensions);
   const minDimensionBasedScaling = value => value * (minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1);
 
+  // Colour the header the same colour as the panel background
   useEffect(() => {
-    const bgColor = panels[0]?.mark.backgroundColour || BG_COLOURS[0];
-    console.log(bgColor);
-    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
+    const firstBgColor = panels.map(p => p?.data?.state ? decode<any>(p.data.state).backgroundColor : null).find(c => !!c);
+    const headerEl = document.querySelector('.Header');
+    if (headerEl && firstBgColor) {
+      // @ts-ignore
+      headerEl.style.background = firstBgColor;
+    }
+    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(firstBgColor));
   }, []);
 
   useEffect(() => {
