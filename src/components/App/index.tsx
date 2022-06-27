@@ -6,7 +6,8 @@ import { decode } from '@abcnews/base-36-props';
 
 import Dots from '../Dots';
 import { Mark } from '../Dots/types';
-import { DEFAULT_ALIGNMENT } from '../../constants';
+import { DEFAULT_ALIGNMENT, BG_COLOURS } from '../../constants';
+import { hexToRgbA } from '../../utils';
 import styles from './styles.scss';
 
 export type AppProps = {
@@ -48,6 +49,12 @@ const App: React.FC<AppProps> = ({
   const [dimensions, setDimensions] = useState([window.innerWidth, window.innerHeight]);
   const minDimension = Math.min.apply(null, dimensions);
   const minDimensionBasedScaling = value => value * (minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1);
+
+  useEffect(() => {
+    const bgColor = panels[0]?.mark.backgroundColour || BG_COLOURS[0];
+    console.log(bgColor);
+    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
+  }, []);
 
   useEffect(() => {
     const updateDimensions = (client: OdysseySchedulerClient) => {
