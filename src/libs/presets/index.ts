@@ -12,20 +12,19 @@ const nearness = (a, b) => {
 }
 
 
-export default async function getPreset(preset: string, width: number, height: number, margin: number) {
+export default async function getPreset(preset: string, width: number, height: number, margin: number, dotSpacing: number) {
     const { labelList, shapeUrl } = PRESETS[preset];
     const svg = await fetch(shapeUrl).then(r => r.text());
 
+    // Two settings for shape size, offset based on the dot spacing
     let STRETCH_FACTOR = 15;
+    let X_OFFSET = 7.5;
+    let Y_OFFSET = 9;
 
-    // Magic numbers :S
-    let X_OFFSET = 7.5; // 110;
-    let Y_OFFSET = 9; // 130;
-
-    if (width < 630) {
+    if (dotSpacing < 6) {
       STRETCH_FACTOR = 10;
-      X_OFFSET = 5.5; // 110;
-      Y_OFFSET = 7.9; // 130;
+      X_OFFSET = 5.5;
+      Y_OFFSET = 7.9;
     }
 
     const dots = svg.match(/cx="[+-]?([0-9]*[.])?[0-9]+" cy="[+-]?([0-9]*[.])?[0-9]+"/g);

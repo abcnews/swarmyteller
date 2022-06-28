@@ -326,7 +326,7 @@ export function graph(mountNode, options) {
     document.documentElement.style.setProperty('--panel-bg-color', bgColor);
 
     // Lookup preset from SVG file
-    const { swarms, labelPoints } = await getPreset(preset, width, height, margin);
+    const { swarms, labelPoints } = await getPreset(preset, width, height, margin, dotSpacing);
 
     clusters = swarms
       // Add some properties to the groups
