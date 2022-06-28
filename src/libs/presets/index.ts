@@ -22,7 +22,7 @@ export default async function getPreset(preset: string, width: number, height: n
     let X_OFFSET = 7.5; // 110;
     let Y_OFFSET = 9; // 130;
 
-    if (width < 615) {
+    if (width < 630) {
       STRETCH_FACTOR = 10;
       X_OFFSET = 5.5; // 110;
       Y_OFFSET = 7.9; // 130;
