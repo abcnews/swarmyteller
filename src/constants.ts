@@ -33,6 +33,10 @@ export const PRESETS = {
     labelList: ['Australia as 100 people'],
     shapeUrl: `${__webpack_public_path__}shapes/australiadots.svg`
   },
+  australiadotsnolabel: {
+    labelList: [''],
+    shapeUrl: `${__webpack_public_path__}shapes/australiadots.svg`
+  },
   statesdotsindpop: {
     labelList: [
       'NSW',

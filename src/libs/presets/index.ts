@@ -16,23 +16,37 @@ export default async function getPreset(preset: string, width: number, height: n
     const { labelList, shapeUrl } = PRESETS[preset];
     const svg = await fetch(shapeUrl).then(r => r.text());
 
+    let STRETCH_FACTOR = 15;
+
+    // Magic numbers :S
+    let X_OFFSET = 7.5; // 110;
+    let Y_OFFSET = 9; // 130;
+
+    if (width < 615) {
+      STRETCH_FACTOR = 10;
+      X_OFFSET = 5.5; // 110;
+      Y_OFFSET = 7.9; // 130;
+    }
+
     const dots = svg.match(/cx="[+-]?([0-9]*[.])?[0-9]+" cy="[+-]?([0-9]*[.])?[0-9]+"/g);
     const points = dots?.map(m => m.split('"')).map(m => [
-      parseFloat(m[1]) * 15,
-      parseFloat(m[3]) * 15,
+      parseFloat(m[1]) * STRETCH_FACTOR,
+      parseFloat(m[3]) * STRETCH_FACTOR,
     ]).sort(nearness)
 
     const labels = svg.match(/x="[+-]?([0-9]*[.])?[0-9]+" y="[+-]?([0-9]*[.])?[0-9]+"/g);
     const labelPoints = labels?.map(m => m.split('"')).map((m, i) => [
-      parseFloat(m[1]) * 15 + (width / 2 - margin * 2 - 110), // Magic numbers :S
-      parseFloat(m[3]) * 15 + (height / 2 - margin * 2 - 130),
+      parseFloat(m[1]) * STRETCH_FACTOR + (width / 2 - margin * 2 - X_OFFSET * STRETCH_FACTOR),
+      parseFloat(m[3]) * STRETCH_FACTOR + (height / 2 - margin * 2 - Y_OFFSET * STRETCH_FACTOR),
       labelList[i],
     ]) as any;
 
     const swarms = [{
-      size: 24 * 15,
+      size: 24 * STRETCH_FACTOR,
       points,
     }];
+
+
 
     return {
       swarms,

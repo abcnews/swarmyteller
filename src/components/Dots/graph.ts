@@ -170,7 +170,7 @@ export function graph(mountNode, options) {
     // Set background colour
     const bgColor = mark.backgroundColor || BG_COLOURS[0];
     rootSelection.style('background-color', bgColor);
-    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
+    document.documentElement.style.setProperty('--panel-bg-color', bgColor);
 
     // Calculate and layout swarms
     const swarms = await Promise.all(mark.swarms.map(s => swarm({
@@ -323,7 +323,7 @@ export function graph(mountNode, options) {
     // Set color according to measure
     const bgColor = mark.backgroundColor || BG_COLOURS[0];
     rootSelection.style('background-color', bgColor);
-    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(bgColor));
+    document.documentElement.style.setProperty('--panel-bg-color', bgColor);
 
     // Lookup preset from SVG file
     const { swarms, labelPoints } = await getPreset(preset, width, height, margin);

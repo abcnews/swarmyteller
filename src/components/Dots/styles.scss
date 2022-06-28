@@ -33,7 +33,7 @@
     height: 100vh;
   }
 
-  .group-label text,
+  .groupLabel text,
   .presetLabel text {
     font-size: 15px;
     font-family: ABCSans, sans-serif;
@@ -42,7 +42,7 @@
     animation: fadeIn 0.6s;
   }
   
-  .group-label path,
+  .groupLabel path,
   .presetLabel path {
     fill: none;
     stroke: rgba(255, 255, 255, 0.6);

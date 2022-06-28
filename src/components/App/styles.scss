@@ -1,6 +1,6 @@
 .panel {
   &:nth-of-type(2) {
-    margin-top: 100vh;
+    margin-top: 30vh;
   }
 
   &::before {
@@ -32,11 +32,17 @@
     font-size: 1.75rem;
   }
 
+  & a {
+    color: #94E9FF !important;
+  }
+  & a:visited {
+    color: #F8D1FA !important;
+  }
+
   & a:link,
   & a:hover,
   & a:active,
   & a:visited {
-    color: inherit !important;
     text-decoration: underline !important;
     text-decoration-color: rgba(255, 255, 255, 0.5) !important;
   }
@@ -59,10 +65,15 @@
 }
 
 
-// Make the coloured background cover the whole page and make title white
+// Make the coloured background cover the whole page and make text white
 :global(.Header) {
   background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
   margin-bottom: 30px !important;
+}
+
+:global([data-key="body"]) {
+  background: red;
+  background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
 
   & a {
     color: #94E9FF;
@@ -72,9 +83,10 @@
   }
 
   & h1,
+  & h2,
   & div,
+  & ul,
   & p {
     color: white !important;
   }
 }
-

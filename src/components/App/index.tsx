@@ -58,7 +58,7 @@ const App: React.FC<AppProps> = ({
       // @ts-ignore
       headerEl.style.background = firstBgColor;
     }
-    document.documentElement.style.setProperty('--panel-bg-color', hexToRgbA(firstBgColor));
+    document.documentElement.style.setProperty('--panel-bg-color', firstBgColor);
   }, []);
 
   useEffect(() => {
