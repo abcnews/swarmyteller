@@ -33,9 +33,14 @@ type OdysseyAPI = {
   };
 };
 
-const setPanelAlignment = (panel) => {
+const setPanelAlignment = (panel, i) => {
   const markState = panel?.data?.state && decode(panel.data.state);
   panel.align = markState?.align || DEFAULT_ALIGNMENT;
+
+  // Force first two panels to be centered
+  if (i === 0 || i === 1) {
+    panel.align = 'center';
+  }
   return panel;
 }
 
