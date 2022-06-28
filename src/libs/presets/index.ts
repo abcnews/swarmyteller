@@ -45,8 +45,6 @@ export default async function getPreset(preset: string, width: number, height: n
       points,
     }];
 
-
-
     return {
       swarms,
       labelPoints,

@@ -288,13 +288,16 @@ export function graph(mountNode, options) {
       .attr('transform', d => `translate(${d.label.x}, ${d.label.y})`);
 
     // Draw the arc
-    groupLabels.select('path').attr('d', d => {
-      let ctx = path();
-      let rad = Math.atan2(d.label.y - d.y, d.label.x - d.x);
-      ctx.moveTo((d.r + 15) * Math.cos(rad) + d.x, (d.r + 10) * Math.sin(rad) + d.y);
-      ctx.lineTo(d.r * Math.cos(rad) + d.x, d.r * Math.sin(rad) + d.y);
-      return ctx.toString();
-    });
+    groupLabels
+      .select('path')
+      .attr('stroke', d => d.color === '#000000' ? '#FFFFFF' : d.color)
+      .attr('d', d => {
+        let ctx = path();
+        let rad = Math.atan2(d.label.y - d.y, d.label.x - d.x);
+        ctx.moveTo((d.r + 15) * Math.cos(rad) + d.x, (d.r + 10) * Math.sin(rad) + d.y);
+        ctx.lineTo(d.r * Math.cos(rad) + d.x, d.r * Math.sin(rad) + d.y);
+        return ctx.toString();
+      });
 
     // Update the swarms
     updateCanvas(clusters);
@@ -382,6 +385,7 @@ export function graph(mountNode, options) {
 
           // Draw the arc
           g.append('path')
+          .attr('stroke', d => '#FFFFFF')
           .attr('d', d => {
             let ctx = path();
             const x = d[0] - 5 - offsetX;

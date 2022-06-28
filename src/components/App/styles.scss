@@ -1,4 +1,6 @@
 .panel {
+  opacity: 0.85;
+
   &:nth-of-type(2) {
     margin-top: 5vh;
   }
@@ -54,13 +56,6 @@
 
   @media only screen and (min-width: 668px) and (max-width: 1022px) {
     width: 42rem;
-  }
-
-  @media only screen and (min-width: 1023px) {
-    &:nth-of-type(2)[data-align='left'],
-    &:nth-of-type(2)[data-align='right'] {
-      margin-top: 30vh;
-    }
   }
 }
 
