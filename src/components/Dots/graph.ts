@@ -168,9 +168,9 @@ export function graph(mountNode, options) {
     }
 
     // Set background colour
-    const bgColor = mark.backgroundColor || BG_COLOURS[0];
-    rootSelection.style('background-color', bgColor);
-    document.documentElement.style.setProperty('--panel-bg-color', bgColor);
+    // const bgColor = mark.backgroundColor || BG_COLOURS[0];
+    // rootSelection.style('background-color', bgColor);
+    // document.documentElement.style.setProperty('--panel-bg-color', bgColor);
 
     // Calculate and layout swarms
     const swarms = await Promise.all(mark.swarms.map(s => swarm({
@@ -200,10 +200,15 @@ export function graph(mountNode, options) {
             .replace(/\(/g, '(\u202f')
             .replace(/\)/g, '\u202f)');
 
+        let color = (swarmDef.color === '#fff' || swarmDef.color === '#ffffff') ? '#000' : (swarmDef.color || '#000');
+        if (color === '#ffd782') {
+          color = '#00297E';
+        }
+
         return {
           ...cluster,
           swarm: s,
-          color: swarmDef.color || '#fff',
+          color,
           shape: swarmDef.shape || 'circle',
           r: s.size / 2,
           dotR: dotRadius || 1,

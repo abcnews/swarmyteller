@@ -17,7 +17,7 @@
 .dots {
   position: relative;
   z-index: 1;
-  background-color: #0D659C; // Fallback if no js
+  // background-color: #0D659C; // Fallback if no js
   transition: background-color 0.2s;
 
   canvas {
@@ -64,7 +64,7 @@
   position: absolute;
   bottom: 1rem;
   left: 50%;
-  color: #fff;
+  color: #000;
   font-size: 0.9375rem;
   line-height: 1;
 }

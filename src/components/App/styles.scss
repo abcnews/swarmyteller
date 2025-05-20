@@ -3,6 +3,7 @@
     font-family: var(--dls-font-stack-sans) !important;
     font-size: var(--od-font-size) !important;
     line-height: var(--od-line-height) !important;
+    color: black !important;
   }
 
   &:nth-of-type(2) {
@@ -12,7 +13,8 @@
   &::before {
     opacity: 0.85;
     transition: background-color 0.2;
-    background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
+    background: white !important;
+    // background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
   }
 
   & > :not(:last-child) {
@@ -25,7 +27,7 @@
     margin-right: auto !important;
     width: 24rem;
     max-width: 90%;
-    color: #fefefe;
+    // color: #fefefe;
     line-height: 1.25;
     text-align: center;
     text-transform: none;
@@ -39,12 +41,12 @@
     font-size: 1.75rem;
   }
 
-  & a {
-    color: #94E9FF !important;
-  }
-  & a:visited {
-    color: #F8D1FA !important;
-  }
+  // & a {
+  //   color: #94E9FF !important;
+  // }
+  // & a:visited {
+  //   color: #F8D1FA !important;
+  // }
 
   & a:link,
   & a:hover,
@@ -67,19 +69,18 @@
 
 // Make the coloured background cover the whole page and make text white
 :global(.Header) {
-  background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
+  // background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
   margin-bottom: 30px !important;
 }
 
 :global([data-key="body"]) {
-  background: red;
-  background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
+  // background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
 
   & a {
-    color: #94E9FF;
+    // color: #94E9FF;
   }
   & a:visited {
-    color: #F8D1FA;
+    // color: #F8D1FA;
   }
 
   & h1,
@@ -87,6 +88,6 @@
   & div,
   & ul,
   & p {
-    color: white !important;
+    // color: white !important;
   }
 }
