@@ -47,7 +47,7 @@ const App: React.FC<AppProps> = ({
   dotMinRadius = 1
 }) => {
   const [mark, setMark] = useState<Mark>();
-  const [dimensions, setDimensions] = useState([window.innerWidth, window.innerHeight]);
+  const [dimensions, setDimensions] = useState([window.innerWidth, window.innerHeight * 0.5]);
   const minDimension = Math.min.apply(null, dimensions);
   const minDimensionBasedScaling = value => value * (minDimension > 1200 ? 2 : minDimension > 600 ? 1.5 : 1);
 
@@ -65,7 +65,7 @@ const App: React.FC<AppProps> = ({
   useEffect(() => {
     const updateDimensions = (client: OdysseySchedulerClient) => {
       if (!dimensions || client.hasChanged) {
-        setDimensions([client.width, client.height]);
+        setDimensions([client.width, client.height * 0.5]);
       }
     };
     const { subscribe, unsubscribe } = (window.__ODYSSEY__ as OdysseyAPI).scheduler;

@@ -1,6 +1,7 @@
 import 'regenerator-runtime/runtime';
 import acto from '@abcnews/alternating-case-to-object';
 import { decode } from '@abcnews/base-36-props';
+import { proxy } from '@abcnews/dev-proxy';
 import { whenOdysseyLoaded } from '@abcnews/env-utils';
 import { getMountValue, isMount, selectMounts } from '@abcnews/mount-utils';
 import type { ScrollytellerDefinition } from '@abcnews/scrollyteller';
@@ -10,7 +11,10 @@ import { render } from 'react-dom';
 import type { AppProps } from './components/App';
 import App from './components/App';
 
-whenOdysseyLoaded.then(() => {
+Promise.all([
+  whenOdysseyLoaded,
+  proxy('swarmyteller'),
+]).then(() => {
   // Isolate and decode APP prop from opening scrollyteller tag
   // (which may contain `dataURL`, 'dotLabel' and `dotMinRadius` props for <App />)
   const [decodedAppProps] = selectMounts('scrollytellerNAMEswarmyteller', { markAsUsed: false }).map(el => {
