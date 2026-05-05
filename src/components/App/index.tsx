@@ -42,14 +42,9 @@ const setPanelAlignment = (panel, i) => {
     panel.align = 'center';
   }
   return panel;
-}
+};
 
-const App: React.FC<AppProps> = ({
-  panels,
-  dotLabel,
-  align,
-  dotMinRadius = 1
-}) => {
+const App: React.FC<AppProps> = ({ panels, dotLabel, align, dotMinRadius = 1 }) => {
   const [mark, setMark] = useState<Mark>();
   const [dimensions, setDimensions] = useState([window.innerWidth, window.innerHeight]);
   const minDimension = Math.min.apply(null, dimensions);
@@ -57,12 +52,10 @@ const App: React.FC<AppProps> = ({
 
   // Colour the header the same colour as the panel background
   useEffect(() => {
-    const firstBgColor = panels.map(p => p?.data?.state ? decode<any>(p.data.state).backgroundColor : null).find(c => !!c);
-    const headerEl = document.querySelector('.Header');
-    if (headerEl && firstBgColor) {
-      // @ts-ignore
-      headerEl.style.background = firstBgColor;
-    }
+    const firstBgColor = panels
+      .map(p => (p?.data?.state ? decode<any>(p.data.state).backgroundColor : null))
+      .find(c => !!c);
+
     document.documentElement.style.setProperty('--panel-bg-color', firstBgColor);
   }, []);
 
@@ -79,7 +72,7 @@ const App: React.FC<AppProps> = ({
     return () => unsubscribe(updateDimensions);
   }, [dimensions]);
 
-  const onMarker= m => {
+  const onMarker = m => {
     if (m?.state) {
       const mark = decode<Mark>(m.state);
       mark.align = align || mark.align;

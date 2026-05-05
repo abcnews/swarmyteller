@@ -34,10 +34,10 @@
   }
 
   & a {
-    color: #94E9FF !important;
+    color: #94e9ff !important;
   }
   & a:visited {
-    color: #F8D1FA !important;
+    color: #f8d1fa !important;
   }
 
   & a:link,
@@ -58,29 +58,11 @@
   }
 }
 
-
-// Make the coloured background cover the whole page and make text white
 :global(.Header) {
-  background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
+  background-color: var(--panel-bg-color, --bg, #fff);
   margin-bottom: 30px !important;
 }
 
-:global([data-key="body"]) {
-  background: red;
-  background-color: var(--panel-bg-color, rgba(0, 0, 0, 0.6));
-
-  & a {
-    color: #94E9FF;
-  }
-  & a:visited {
-    color: #F8D1FA;
-  }
-
-  & h1,
-  & h2,
-  & div,
-  & ul,
-  & p {
-    color: white !important;
-  }
+:global([data-key='body'][data-claimed='true']) {
+  background-color: var(--panel-bg-color, --bg, #fff);
 }
