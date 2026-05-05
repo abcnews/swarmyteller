@@ -9,8 +9,9 @@ import React from 'react';
 import { render } from 'react-dom';
 import type { AppProps } from './components/App';
 import App from './components/App';
+import { proxy } from '@abcnews/dev-proxy';
 
-whenOdysseyLoaded.then(() => {
+Promise.all([whenOdysseyLoaded, proxy('swarmyteller')]).then(() => {
   // Isolate and decode APP prop from opening scrollyteller tag
   // (which may contain `dataURL`, 'dotLabel' and `dotMinRadius` props for <App />)
   const [decodedAppProps] = selectMounts('scrollytellerNAMEswarmyteller', { markAsUsed: false }).map(el => {
