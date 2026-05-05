@@ -55,11 +55,7 @@ const App: React.FC<AppProps> = ({ panels, dotLabel, align, dotMinRadius = 1 }) 
     const firstBgColor = panels
       .map(p => (p?.data?.state ? decode<any>(p.data.state).backgroundColor : null))
       .find(c => !!c);
-    const headerEl = document.querySelector('.Header');
-    if (headerEl && firstBgColor) {
-      // @ts-ignore
-      headerEl.style.background = firstBgColor;
-    }
+
     document.documentElement.style.setProperty('--panel-bg-color', firstBgColor);
   }, []);
 
