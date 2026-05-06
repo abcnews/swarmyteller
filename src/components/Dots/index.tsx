@@ -1,8 +1,8 @@
 import React from 'react';
 
 import '../../poly';
-import { Mark } from './types';
-import { graph, Graph, GraphInputs } from './graph';
+import { type Mark } from './types';
+import { graph, type Graph, type GraphInputs } from './graph';
 // import { graph, Graph, GraphInputs } from './presetGraph';
 
 import styles from './styles.scss';
@@ -10,7 +10,7 @@ import styles from './styles.scss';
 interface Props extends GraphInputs {
   dotLabel: string;
   marks: Mark[];
-  useWorkers?: boolean,
+  useWorkers?: boolean;
 }
 
 export default class Dots extends React.Component {
@@ -40,7 +40,7 @@ export default class Dots extends React.Component {
     if (!this.rootRef.current) {
       return;
     }
-    this.graph = graph(this.rootRef.current, { useWorkers: this.props.useWorkers });
+    this.graph = graph(this.rootRef.current, { useWorkers: this.props.useWorkers || false, margin: 20 });
     if ((this.props as any)?.mark?.preset) {
       this.graph.updatePreset(this.props);
     } else {

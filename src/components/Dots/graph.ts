@@ -1,8 +1,7 @@
 import { select } from 'd3-selection';
-import { scaleOrdinal } from 'd3-scale';
 import { path } from 'd3-path';
 import { timer } from 'd3-timer';
-import { forceSimulation, forceCollide, forceCenter, forceManyBody, forceX, forceY } from 'd3-force';
+import { forceSimulation, forceCollide, forceCenter, forceManyBody } from 'd3-force';
 import deepEqual from 'deep-equal';
 
 import styles from './styles.scss';
@@ -12,17 +11,17 @@ import { labeler } from '../../libs/labeler';
 import scaleCanvas from '../../libs/scale-canvas';
 import swarm from '../../libs/swarm';
 import getPreset from '../../libs/presets';
-import { easeCubicInOut, hexToRgbA, tspans, wordwrap } from '../../utils';
-import { DEFAULT_ALIGNMENT, SHAPE_IMAGE_URLS, SHAPES, BG_COLOURS, MQ_LARGE } from '../../constants';
+import { easeCubicInOut, tspans, wordwrap } from '../../utils';
+import { DEFAULT_ALIGNMENT, SHAPE_IMAGE_URLS, BG_COLOURS, MQ_LARGE } from '../../constants';
 
-import { Mark, Dot, CanvasDot, Cluster } from './types';
+import type { Mark, CanvasDot, Cluster } from './types';
 
 export interface GraphInputs {
-  mark: Mark,
-  dotSpacing: number,
-  dotRadius: number,
-  height: number,
-  width: number,
+  mark: Mark;
+  dotSpacing: number;
+  dotRadius: number;
+  height: number;
+  width: number;
 }
 
 export interface Graph {
@@ -30,16 +29,10 @@ export interface Graph {
   updatePreset: (props: GraphInputs) => void;
 }
 
-export function graph(mountNode, options) {
-  options = Object.assign(
-    {
-      margin: 20,
-      useWorkers: false,
-    },
-    options
-  );
-
-  let dots: Dot[] = [];
+export function graph(
+  mountNode: HTMLDivElement,
+  options: { margin: number; useWorkers: boolean } = { margin: 20, useWorkers: false }
+) {
   let clusters: Cluster[] = [];
   let canvasDots: CanvasDot[] = [];
   let removedCanvasDots: CanvasDot[] = [];
@@ -47,13 +40,11 @@ export function graph(mountNode, options) {
 
   const { margin, useWorkers } = options;
 
-  let width;
-  let height;
-  let align;
-  let measure;
-  let comparison;
-  let dotSpacing;
-  let dotRadius;
+  let width: number;
+  let height: number;
+  let align: string;
+  let dotSpacing: number;
+  let dotRadius: number;
 
   // Selections
   const rootSelection = select(mountNode);
@@ -63,7 +54,7 @@ export function graph(mountNode, options) {
   const canvasEl = canvasSelection.node();
   const canvasCtx = canvasSelection.node().getContext('2d');
 
-  let clusterSimulation;
+  let clusterSimulation: ReturnType<typeof getClusterSimulation>;
 
   function renderCanvas() {
     canvasCtx.save();
@@ -83,7 +74,7 @@ export function graph(mountNode, options) {
     canvasCtx.restore();
   }
 
-  function updateCanvas(clusters) {
+  function updateCanvas(clusters: Cluster[]) {
     const numPoints = clusters.reduce((memo, cluster) => (memo += cluster.swarm.points.length), 0);
     let nextDotIndex = 0;
 
@@ -98,7 +89,21 @@ export function graph(mountNode, options) {
         const tx = cluster.x + point[0] - size / 2;
         const ty = cluster.y + point[1] - size / 2;
 
-        const dot = memo[dotIndex] || (memo.push({ x: cluster.x, y: cluster.y }) && memo[memo.length - 1]);
+        const dot =
+          memo[dotIndex] ||
+          (memo.push({
+            x: cluster.x,
+            y: cluster.y,
+            color: 'rgba(0,0,0,0)',
+            scolor: 'rgba(0,0,0,0)',
+            tcolor: cluster.color,
+            sx: 0,
+            sy: 0,
+            tx,
+            ty,
+            r: cluster.dotR
+          }) &&
+            memo[memo.length - 1]);
 
         dot.scolor = dot.color || 'rgba(0,0,0,0)';
         dot.tcolor = cluster.color;
@@ -173,12 +178,16 @@ export function graph(mountNode, options) {
     document.documentElement.style.setProperty('--panel-bg-color', bgColor);
 
     // Calculate and layout swarms
-    const swarms = await Promise.all(mark.swarms.map(s => swarm({
-      imageURL: SHAPE_IMAGE_URLS[s.shape || 'circle'] || SHAPE_IMAGE_URLS.circle,
-      numPoints: +s.value,
-      spacing: dotSpacing || 3,
-      useWorkers,
-    })));
+    const swarms = await Promise.all(
+      mark.swarms.map(s =>
+        swarm({
+          imageURL: SHAPE_IMAGE_URLS[s.shape || 'circle'] || SHAPE_IMAGE_URLS.circle,
+          numPoints: +s.value,
+          spacing: dotSpacing || 3,
+          useWorkers
+        })
+      )
+    );
 
     // New data
     clusters = swarms
@@ -196,9 +205,7 @@ export function graph(mountNode, options) {
         //
         // Underscores are converted to spaces, and prevent wrapping
         //
-        const label = (swarmDef.label).replace(/_/g, '\u00a0')
-            .replace(/\(/g, '(\u202f')
-            .replace(/\)/g, '\u202f)');
+        const label = swarmDef.label.replace(/_/g, '\u00a0').replace(/\(/g, '(\u202f').replace(/\)/g, '\u202f)');
 
         return {
           ...cluster,
@@ -218,24 +225,20 @@ export function graph(mountNode, options) {
 
     // Labels - using tspans to for multi-line labels
     // Remove old ones to ensure the delayed appearance of the labels
-    svgSelection
-      .selectAll(`g.${styles.groupLabel}`)
-      .remove();
+    svgSelection.selectAll(`g.${styles.groupLabel}`).remove();
     const groupLabels = svgSelection
       .selectAll(`g.${styles.groupLabel}`)
       .data(clusters.filter(c => c.hasLabel))
-        .enter()
-          .append('g')
-          .attr('class', styles.groupLabel)
-          .call(g => {
-            g.append('text');
-            g.append('path');
-          })
+      .enter()
+      .append('g')
+      .attr('class', styles.groupLabel)
+      .call(g => {
+        g.append('text');
+        g.append('path');
+      })
       .call(label => label.select('text').call(tspans, d => d.groupLines));
 
-    const presetGroupLabels = svgSelection
-      .selectAll(`.preset`)
-      .remove();
+    const presetGroupLabels = svgSelection.selectAll(`.preset`).remove();
 
     // Resolve cluster positions
     clusterSimulation.nodes(clusters).alpha(1);
@@ -266,7 +269,7 @@ export function graph(mountNode, options) {
     });
 
     // Measure the text
-    groupLabels.select('text').each(function(d) {
+    groupLabels.select('text').each(function (d) {
       // @ts-ignore
       let bbox = this.getBBox();
       d.label.width = bbox.width;
@@ -283,14 +286,15 @@ export function graph(mountNode, options) {
       .start(clusters.length * 2);
 
     // Position the text
-    groupLabels.select('text')
-      .attr('fill', d => d.color === '#000000' ? '#FFFFFF' : d.color)
+    groupLabels
+      .select('text')
+      .attr('fill', d => (d.color === '#000000' ? '#FFFFFF' : d.color))
       .attr('transform', d => `translate(${d.label.x}, ${d.label.y})`);
 
     // Draw the arc
     groupLabels
       .select('path')
-      .attr('stroke', d => d.color === '#000000' ? '#FFFFFF' : d.color)
+      .attr('stroke', d => (d.color === '#000000' ? '#FFFFFF' : d.color))
       .attr('d', d => {
         let ctx = path();
         let rad = Math.atan2(d.label.y - d.y, d.label.x - d.x);
@@ -361,17 +365,14 @@ export function graph(mountNode, options) {
     //
     // Remove all labels
     //
-    const groupLabels = svgSelection
-      .selectAll(`g.${styles.groupLabel}`)
-      .remove();
-    const presetGroupLabels = svgSelection
-      .selectAll(`.preset`)
-      .remove();
+    svgSelection.selectAll(`g.${styles.groupLabel}`).remove();
+    svgSelection.selectAll(`.preset`).remove();
 
     const offsetX = MQ_LARGE.matches ? mqLargeOffsetX(width, align, margin) : 0;
 
     if (labelPoints?.length) {
-      const presetGroupLabels = svgSelection
+      // Add new labels
+      svgSelection
         .selectAll(`g.${styles.presetLabel}`)
         .data(labelPoints.filter(d => !!d[2]))
         .enter()
@@ -379,23 +380,23 @@ export function graph(mountNode, options) {
         .attr('class', `${styles.presetLabel} preset`)
         .call(g => {
           g.append('text')
-          .attr('fill', d => '#FFFFFF')
-          .attr('transform', d => `translate(${d[0] - offsetX}, ${d[1]})`)
-          .text(d => d[2]);
+            .attr('fill', d => '#FFFFFF')
+            .attr('transform', d => `translate(${d[0] - offsetX}, ${d[1]})`)
+            .text(d => d[2]);
 
           // Draw the arc
           g.append('path')
-          .attr('stroke', d => '#FFFFFF')
-          .attr('d', d => {
-            let ctx = path();
-            const x = d[0] - 5 - offsetX;
-            const y = d[1] + 20;
-            const r = 2;
-            let rad = 5;
-            ctx.moveTo((r + 5) * Math.cos(rad) + x, (r + 10) * Math.sin(rad) + y);
-            ctx.lineTo(r * Math.cos(rad) + x, r * Math.sin(rad) + y);
-            return ctx.toString();
-          });
+            .attr('stroke', d => '#FFFFFF')
+            .attr('d', d => {
+              let ctx = path();
+              const x = d[0] - 5 - offsetX;
+              const y = d[1] + 20;
+              const r = 2;
+              let rad = 5;
+              ctx.moveTo((r + 5) * Math.cos(rad) + x, (r + 10) * Math.sin(rad) + y);
+              ctx.lineTo(r * Math.cos(rad) + x, r * Math.sin(rad) + y);
+              return ctx.toString();
+            });
         });
     }
 
@@ -417,26 +418,27 @@ export function graph(mountNode, options) {
     updateCanvas(clusters);
   };
 
-  function getClusterSimulation(align) {
-    // const mqLargeCenterX = alignmentOffset(width, align);
-
-    return forceSimulation()
-      .force('gravity', forceCenter(MQ_LARGE.matches ? mqLargeCenterX(width, align, margin) : width / 2, height / 2))
+  function getClusterSimulation(align: string) {
+    return forceSimulation<Cluster>()
+      .force(
+        'gravity',
+        forceCenter<Cluster>(MQ_LARGE.matches ? mqLargeCenterX(width, align, margin) : width / 2, height / 2)
+      )
       .force(
         'attract',
-        forceManyBody()
+        forceManyBody<Cluster>()
           .strength(100)
           .distanceMin(10)
           .distanceMax(Math.max(width, height) * 2)
       )
-      .force('collide', forceCollide(c => c.r + 40).iterations(3))
+      .force('collide', forceCollide<Cluster>(c => c.r + 40).iterations(3))
       .stop();
   }
 
   return { update, updatePreset };
 }
 
-const mqLargeOffsetX = (width, align, margin) => {
+const mqLargeOffsetX = (width: number, align: string, margin: number) => {
   if (align === 'left') {
     return -1 * (width / 6 + 4 * margin);
   } else if (align === 'right') {
@@ -444,14 +446,14 @@ const mqLargeOffsetX = (width, align, margin) => {
   } else {
     return 0;
   }
-}
+};
 
-const mqLargeCenterX = (width, align, margin) => {
+const mqLargeCenterX = (width: number, align: string, margin: number) => {
   if (align === 'left') {
-    return 2 * width / 3 + 4 * margin;
+    return (2 * width) / 3 + 4 * margin;
   } else if (align === 'right') {
     return width / 3 - 4 * margin;
   } else {
     return width / 2;
   }
-}
+};

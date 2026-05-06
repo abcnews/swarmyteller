@@ -16,7 +16,8 @@
 		"start": "aunty serve"
 	},
 	"devDependencies": {
-		"@abcnews/aunty": "^16.0.1"
+		"@abcnews/aunty": "^16.0.1",
+		"@types/d3-force": "^2.1.7"
 	},
 	"dependencies": {
 		"@abcnews/alternating-case-to-object": "^3.0.2",

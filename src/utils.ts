@@ -1,5 +1,4 @@
 import { sum } from 'd3-array';
-import type { Selection } from 'd3-selection';
 
 // while this might not be reprentative for all fonts, it is
 // still better than assuming every character has the same width
