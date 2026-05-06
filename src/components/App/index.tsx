@@ -5,9 +5,8 @@ import scrollytellerPanelStyles from '@abcnews/scrollyteller/src/Panel/index.mod
 import { decode } from '@abcnews/base-36-props';
 
 import Dots from '../Dots';
-import { Mark } from '../Dots/types';
-import { DEFAULT_ALIGNMENT, BG_COLOURS } from '../../constants';
-import { hexToRgbA } from '../../utils';
+import { type Mark } from '../Dots/types';
+import { DEFAULT_ALIGNMENT } from '../../constants';
 import styles from './styles.scss';
 
 export type AppProps = {
@@ -44,7 +43,7 @@ const setPanelAlignment = (panel, i) => {
   return panel;
 };
 
-const App: React.FC<AppProps> = ({ panels, dotLabel, align, dotMinRadius = 1 }) => {
+const App: React.FC<AppProps> = ({ panels, dotLabel, align }) => {
   const [mark, setMark] = useState<Mark>();
   const [dimensions, setDimensions] = useState([window.innerWidth, window.innerHeight]);
   const minDimension = Math.min.apply(null, dimensions);
