@@ -57,12 +57,3 @@
     width: 42rem;
   }
 }
-
-:global(.Header) {
-  background-color: var(--panel-bg-color, --bg, #fff);
-  margin-bottom: 30px !important;
-}
-
-:global([data-key='body'][data-claimed='true']) {
-  background-color: var(--panel-bg-color, --bg, #fff);
-}
